@@ -1,0 +1,85 @@
+Usuario:
+Id
+nombre
+mail
+fichas
+
+inscripcion:
+Id
+id Usuario
+id torneo
+
+torneo:
+id
+id competicion
+status (abierto/cerrado)
+participantes inscriptos
+limite participantes
+precio de entrada
+privacidad
+
+puntaje:
+id
+id Usuario
+id torneo
+puntos
+
+competicion:
+id (Sofascore)
+nombre
+temporada
+fecha inicio 
+fecha final
+id jugador goleador
+id equipo campeon
+
+equipo:
+id (Sofascore)
+nombre
+tipo (club/seleccion)
+
+jugador:
+id (Sofascore)
+nombre
+id equipo
+
+partido:
+id (Sofascore)
+id competicion
+fecha (para bloquear predicciones)
+id local
+id visitante
+goles local
+goles visitante
+tipo (por puntos/eliminación directa)
+equipo que avanza (solo en eliminación directa)
+status (finalizado/suspendido/cancelado)
+
+prediccion de partido:
+id
+id usuario 
+id torneo
+id partido
+goles local
+goles visitante
+id equipo que avanza (solo en eliminacion directa)
+
+prediccion especial:
+id
+id usuario
+id torneo
+id equipo campeon
+id jugador goleador
+
+(posible implementación)
+goleadores:
+id 
+id competicion
+id jugador
+goles
+
+Informacion necesaria de la API:
+Todos los datos de la competicion a partir de un id competicion (que sale de una URL (o ya fijado))
+En la BD los datos van a cambiar cada temporada nueva.
+Sacar los datos para el equipo y jugador con su id.
+Extraer datos del partido con el match id
