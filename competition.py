@@ -9,7 +9,7 @@ def normalize_competition(info, season, champion, scorer) -> dict:
         "start-time": datetime.fromtimestamp(info["startDateTimestamp"]),
         "end-time": datetime.fromtimestamp(info["endDateTimestamp"]),
         "champion": champion["name"],
-        "top-scorer": scorer,
+        "top-scorer": scorer["name"],
     }
 
 def main():

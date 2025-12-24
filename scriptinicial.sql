@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS tournament (
     participant_limit INT NOT NULL,
     entry_price INT NOT NULL,
     public BOOLEAN NOT NULL,
+    password VARCHAR(20) DEFAULT NULL,
     FOREIGN KEY(competition_id) references competition(external_id) ----------------
 ) ENGINE=INNODB
 
