@@ -8,6 +8,7 @@
 from botasaurus.request import request, Request
 from botasaurus.browser import browser, Driver
 import json
+from pprint import pprint
 
 """ These are the status codes for Sofascore events. Found in event['status'] key.
 {100: {'code': 100, 'description': 'Ended', 'type': 'finished'},
@@ -87,6 +88,10 @@ def botasaurus_browser_get_json(driver: Driver, url: str) -> dict:
 #--------------------------------------------------------------------------------------
 class Sofascore:
 
+    def __init__(self) -> None:
+        self.league_stats_fields = ['goals']
+        self.concatenated_fields = '%2C'.join(self.league_stats_fields)
+
     def get(self, path: str) -> dict:
         """
         It does a HTTP GET and returns JSON like dict
@@ -106,25 +111,37 @@ class Sofascore:
     
     def get_seasons(self, competition_id: int) -> list[dict]:
         data = self.get(f"/unique-tournament/{competition_id}/seasons/")
-        # season_id = max(seasons, key=lambda s: s["year"])["id"] SEASON ACTIVA, la más nueva
         return data["seasons"]
     
-    #ARREGLAR
-    def get_matches(self, season_id: int) -> list[dict]:
+    def get_current_season(self, competition_id: int) -> list[dict]:
+        seasons = self.get_seasons(competition_id)
+        season_id = seasons[0]["id"]
+        return season_id
+    
+    def get_matches(self, competition_id: int, season_id: int) -> list[dict]:
         events = []
         page = 0
 
         while True:
             data = self.get(
-                f"/unique-tournament/season/{season_id}/events/last/{page}"
+                f"/unique-tournament/{competition_id}/season/{season_id}/events/last/{page}"
             )
-            if "events" not in data:
+            if 'events' not in data:
                 break
 
-            events.extend(data["events"])
+            events.extend(data['events'])
             page += 1
 
         return events
+    
+    def get_matches_by_page(self, competition_id: int, season_id: int, page: int) -> list[dict]:
+        data = self.get(
+             f"/unique-tournament/{competition_id}/season/{season_id}/events/last/{page}"
+        )
+        if 'events' not in data:
+            return
+
+        return data
 
     def get_match(self, match_id: int) -> dict:
         data = self.get(f"/event/{match_id}")
@@ -134,13 +151,81 @@ class Sofascore:
         data = self.get(f"/unique-tournament/{competition_id}")
         return data["uniqueTournament"]
     
-    def get_standings(self, competition_id: int, season_id: int) -> dict:
-        data = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/standings/total")
-        #champion = data["standings"][0]["rows"][0]["team"] # obtiene el equipo con más puntos (campeón) (Dejarlo en el Normalize)
-        return data
+    def get_team_stats(self, competition_id: int, season_id: int) -> dict:
+        teams = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/teams")["teams"]
 
-    #ARREGLAR
-    def get_top_players(self, competition_id: int, season_id: int) -> dict: 
-        data = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/top-players/overall")
-        #scorer = data[0]["player"] # obtiene el jugador con más goles (Dejarlo en el Normalize)
-        return data["topPlayers"]
+        team_data = []
+        for team in teams:
+            team_id = team["id"]
+            result = self.get(f"/team/{team_id}/unique-tournament/{competition_id}/season/{season_id}/statistics/overall")
+
+            if "statistics" in result:
+                # Team has league stats, build series with them
+                team_data.append(result)
+
+        return team_data
+    
+    def get_team_general_stats(self, competition_id, season_id) -> dict:
+        data = self.get(f'/unique-tournament/{competition_id}/season/{season_id}/standings/total')
+        return data
+    
+    #-------------- MEJORAR (MUY LENTO)
+    def get_champion(self, competition_id, season_id) -> dict:
+        matches = self.get_matches(competition_id,season_id)
+        # Obtener el partido de la final
+        i = 0
+        final = None
+        for match in matches:
+            if matches[i].get('roundInfo', {}).get('name') == 'Final':
+                final = match
+                break
+            i+=1
+
+        if final: # Es una copa (tiene final) #=================== VER QUE PASA SI HAY PENALES
+            if final["homeScore"]["current"] > final["awayScore"]["current"]:
+                champion_id = final["homeTeam"]["id"]
+            else:
+                champion_id = final["awayTeam"]["id"]
+        else: # Es una liga (no tiene final)
+            champion_id = self.get_team_general_stats(competition_id,season_id)['standings'][0]['rows'][0]['id']
+
+        return champion_id
+
+    # PORQUE PIJA NO ANDAAAAAA
+    def get_scorers(self, competition_id: int, season_id: int) -> dict: 
+        data = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/statistics?accumulation=total&fields={self.concatenated_fields}")
+        return data
+    
+    def get_top_scorers(self, competition_id: int, season_id: int) -> dict:
+        player_stats = self.get_scorers(competition_id, season_id)
+        
+        ids = []
+        goals = []
+
+        for stat in player_stats["results"]:
+            ids.append(stat["player"]["id"])
+            goals.append(stat["goals"])
+
+        top_scorer = list(zip(ids, goals))
+
+        top_scorer = sorted(top_scorer, key=lambda x: x[1], reverse=True) # Lista de goleadores de más goles a menos
+
+        return top_scorer
+    
+    def get_max_scorers(self, top_scorer:dict):
+        max_goals = top_scorer[0][1]
+        max_scorer = [(player_id, goals) for player_id, goals in top_scorer if goals == max_goals]
+        return max_scorer
+
+def main():
+    client = Sofascore()
+
+    top_scorers = client.get_top_scorers(7, 61644)
+
+    print(top_scorers)
+
+    max_scorers = client.get_max_scorers(top_scorers)
+
+    print(max_scorers)
+
+main()
