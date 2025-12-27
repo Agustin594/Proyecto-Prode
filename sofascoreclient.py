@@ -4,11 +4,12 @@
 #import numpy as np
 #from typing import Union, Sequence
 #import warnings
+#from pprint import pprint
 
 from botasaurus.request import request, Request
 from botasaurus.browser import browser, Driver
 import json
-from pprint import pprint
+
 
 """ These are the status codes for Sofascore events. Found in event['status'] key.
 {100: {'code': 100, 'description': 'Ended', 'type': 'finished'},
@@ -110,15 +111,41 @@ class Sofascore:
         return botasaurus_browser_get_json(url) # ← JSON → dict de Python
     
     def get_seasons(self, competition_id: int) -> list[dict]:
+        """
+        Returns the valid season to a given competition.
+        
+        :param competition_id: Competition ID 
+        :type competition_id: int
+        :return: Returns a dict list where each dict is a season
+        :rtype: list[dict]
+        """
         data = self.get(f"/unique-tournament/{competition_id}/seasons/")
         return data["seasons"]
     
-    def get_current_season(self, competition_id: int) -> list[dict]:
+    def get_current_season(self, competition_id: int) -> int:
+        """
+        Returns the current season of a given competition. 
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :return: Returns the season ID of the last competition.
+        :rtype: int
+        """
         seasons = self.get_seasons(competition_id)
         season_id = seasons[0]["id"]
         return season_id
     
     def get_matches(self, competition_id: int, season_id: int) -> list[dict]:
+        """
+        Gets all the matches from a competition in a determined season.
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :param season_id: Season ID
+        :type season_id: int
+        :return: Returns a dict list where each dict is a match
+        :rtype: list[dict]
+        """
         events = []
         page = 0
 
@@ -134,7 +161,18 @@ class Sofascore:
 
         return events
     
-    def get_matches_by_page(self, competition_id: int, season_id: int, page: int) -> list[dict]:
+    def get_matches_by_page(self, competition_id: int, season_id: int, page: int) -> dict:
+        """
+        Gets all the matches from a competition in a determined season accessing with a number of page.
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :param season_id: Season ID
+        :type season_id: int
+        :param page: The page where the different matches are found
+        :return: Returns a dict that corresponds to a different matches
+        :rtype: dict
+        """
         data = self.get(
              f"/unique-tournament/{competition_id}/season/{season_id}/events/last/{page}"
         )
@@ -144,14 +182,40 @@ class Sofascore:
         return data
 
     def get_match(self, match_id: int) -> dict:
+        """
+        Gets the information about a match from its ID.
+        
+        :param match_id: Match ID
+        :type match_id: int
+        :return: Returns the data dict for the given match.
+        :rtype: dict
+        """
         data = self.get(f"/event/{match_id}")
         return data["event"]
     
-    def get_competition(self, competition_id: int) -> list[dict]:
+    def get_competition(self, competition_id: int) -> dict:
+        """
+        Gets the general information about the competition.
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :return: Returns a dict with the information about the competition
+        :rtype: dict
+        """
         data = self.get(f"/unique-tournament/{competition_id}")
         return data["uniqueTournament"]
     
-    def get_team_stats(self, competition_id: int, season_id: int) -> dict:
+    def get_team_stats(self, competition_id: int, season_id: int) -> list[dict]:
+        """
+        Gets all the stats about the teams from a competition in a given season.
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :param season_id: Season ID
+        :type season_id: int
+        :return: Returns a dict list where each dict corresponds to a team stats
+        :rtype: list[dict]
+        """
         teams = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/teams")["teams"]
 
         team_data = []
@@ -165,12 +229,32 @@ class Sofascore:
 
         return team_data
     
-    def get_team_general_stats(self, competition_id, season_id) -> dict:
+    def get_team_general_stats(self, competition_id: int, season_id: int) -> dict:
+        """
+        Gets the general data about the different teams from a competition in a determined season.
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :param season_id: Season ID
+        :type season_id: int
+        :return: Returns a dict with the general stats
+        :rtype: dict
+        """
         data = self.get(f'/unique-tournament/{competition_id}/season/{season_id}/standings/total')
         return data
     
     #-------------- MEJORAR (MUY LENTO)
-    def get_champion(self, competition_id, season_id) -> dict:
+    def get_champion(self, competition_id: int, season_id: int) -> int:
+        """
+        Gets the champion of the competition in a given season based on the positions (league) or the result of the final (cup).
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :param season_id: Season ID
+        :type season_id: int
+        :return: Returns the team ID that corresponds to the champion team
+        :rtype: int
+        """
         matches = self.get_matches(competition_id,season_id)
         # Obtener el partido de la final
         i = 0
@@ -192,11 +276,32 @@ class Sofascore:
         return champion_id
 
     # PORQUE PIJA NO ANDAAAAAA
-    def get_scorers(self, competition_id: int, season_id: int) -> dict: 
+    # Mal generalizado
+    def get_scorers(self, competition_id: int, season_id: int) -> dict:
+        """
+        Gets the scoreres from a competition with its season.
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :param season_id: Season ID
+        :type season_id: int
+        :return: Returns a dict with the information of the different players along with his goals
+        :rtype: dict
+        """
         data = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/statistics?accumulation=total&fields={self.concatenated_fields}")
         return data
     
-    def get_top_scorers(self, competition_id: int, season_id: int) -> dict:
+    def get_top_scorers(self, competition_id: int, season_id: int) -> list:
+        """
+        Creates a zip list with (player id, goals) and sort the list based on goals in descending order, getting the top scorers.
+        
+        :param competition_id: Competition ID
+        :type competition_id: int
+        :param season_id: Season ID
+        :type season_id: int
+        :return: Returns a list of the league scorers
+        :rtype: dict
+        """
         player_stats = self.get_scorers(competition_id, season_id)
         
         ids = []
@@ -212,7 +317,15 @@ class Sofascore:
 
         return top_scorer
     
-    def get_max_scorers(self, top_scorer:dict):
+    def get_max_scorers(self, top_scorer:list) -> list:
+        """
+        Creates a zip list with (player id, goals) of the actual top scorers.
+        
+        :param top_scorer: a list of the top scorers
+        :type top_scorer: list
+        :return: Returns the max scorers
+        :rtype: list
+        """
         max_goals = top_scorer[0][1]
         max_scorer = [(player_id, goals) for player_id, goals in top_scorer if goals == max_goals]
         return max_scorer
