@@ -3,7 +3,7 @@ from match import normalize_match
 
 def upsert_match(db, match):
     db.execute("""
-        INSERT INTO match (
+        INSERT INTO match_ (
             external_id,
             competition_id,
             date,
@@ -43,15 +43,15 @@ def sync_matches(db, competition_id):
     client = Sofascore()
 
     seasons = client.get_seasons(competition_id)
-    season_id = max(seasons, key=lambda s: s["year"])["id"] # Se supone que devuelve el id de la temporada actual
+    season_id = max(seasons, key=lambda s: s["year"])["id"] # current season ID
     
-    matches = client.get_matches(season_id)
+    matches = client.get_matches(competition_id, season_id)
 
     for match in matches:
         map_match = normalize_match(match)
 
         existing = db.fetch_one(
-            "SELECT status FROM match WHERE external_id = %s",
+            "SELECT status FROM match_ WHERE external_id = %s",
             (map_match["external_id"],)
         )
 

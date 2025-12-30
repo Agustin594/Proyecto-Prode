@@ -10,12 +10,3 @@ def normalize_match(raw: dict) -> dict:
         "goals_away": raw.get("awayScore", {}).get("current"),
         "status": raw["status"]["type"]
     }
-
-def main():
-    client = Sofascore()
-
-    raw = client.get_match(12436557)
-
-    print(normalize_match(raw))
-
-main()

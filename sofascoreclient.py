@@ -8,6 +8,7 @@
 
 from botasaurus.request import request, Request
 from botasaurus.browser import browser, Driver
+from datetime import datetime
 import json
 
 
@@ -244,7 +245,8 @@ class Sofascore:
         return data
     
     #-------------- MEJORAR (MUY LENTO)
-    def get_champion(self, competition_id: int, season_id: int) -> int:
+    #-------------- SOLO funciona para la última temporada
+    def get_champion(self, competition_id: int, season_id: int) -> dict:
         """
         Gets the champion of the competition in a given season based on the positions (league) or the result of the final (cup).
         
@@ -252,44 +254,50 @@ class Sofascore:
         :type competition_id: int
         :param season_id: Season ID
         :type season_id: int
-        :return: Returns the team ID that corresponds to the champion team
+        :return: Returns a dict that corresponds to the champion team
         :rtype: int
         """
+        
+        #champion = None
+        #end_date = datetime.fromtimestamp(self.get_competition(competition_id)['endDateTimestamp'])
+        #current_date = datetime.now()
+        #if end_date <= current_date:
+
         matches = self.get_matches(competition_id,season_id)
         # Obtener el partido de la final
         i = 0
         final = None
         for match in matches:
             if matches[i].get('roundInfo', {}).get('name') == 'Final':
-                final = match
-                break
+                   final = match
+                   break
             i+=1
 
         if final: # Es una copa (tiene final) #=================== VER QUE PASA SI HAY PENALES
             if final["homeScore"]["current"] > final["awayScore"]["current"]:
-                champion_id = final["homeTeam"]["id"]
+                champion = final["homeTeam"]
             else:
-                champion_id = final["awayTeam"]["id"]
+                champion = final["awayTeam"]
         else: # Es una liga (no tiene final)
-            champion_id = self.get_team_general_stats(competition_id,season_id)['standings'][0]['rows'][0]['id']
+            champion = self.get_team_general_stats(competition_id,season_id)['standings'][0]['rows'][0]
 
-        return champion_id
+        return champion
 
     # PORQUE PIJA NO ANDAAAAAA
     # Mal generalizado
-    def get_scorers(self, competition_id: int, season_id: int) -> dict:
+    def get_player_data(self, competition_id: int, season_id: int) -> dict:
         """
-        Gets the scoreres from a competition with its season.
+        Gets the player data from a competition with its season.
         
         :param competition_id: Competition ID
         :type competition_id: int
         :param season_id: Season ID
         :type season_id: int
-        :return: Returns a dict with the information of the different players along with his goals
+        :return: Returns a dict with the information of the different players along with his own stats
         :rtype: dict
         """
         data = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/statistics?accumulation=total&fields={self.concatenated_fields}")
-        return data
+        return data['results']
     
     def get_top_scorers(self, competition_id: int, season_id: int) -> list:
         """
@@ -340,5 +348,3 @@ def main():
     max_scorers = client.get_max_scorers(top_scorers)
 
     print(max_scorers)
-
-main()
