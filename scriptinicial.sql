@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS competition (
     start_date TIMESTAMP NOT NULL, 
     end_date TIMESTAMP NOT NULL, 
     top_scorer_id BIGINT NOT NULL,
-    champion_id BIGINT NOT NULL,
+    champion_id BIGINT DEFAULT NULL,
     image_name VARCHAR(100) DEFAULT NULL,
     FOREIGN KEY(top_scorer_id) references player(id), 
     FOREIGN KEY(champion_id) references team(id) 

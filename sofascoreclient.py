@@ -258,28 +258,28 @@ class Sofascore:
         :rtype: int
         """
         
-        #champion = None
-        #end_date = datetime.fromtimestamp(self.get_competition(competition_id)['endDateTimestamp'])
-        #current_date = datetime.now()
-        #if end_date <= current_date:
+        champion = None
+        end_date = datetime.fromtimestamp(self.get_competition(competition_id)['endDateTimestamp'])
+        current_date = datetime.now()
+        if end_date <= current_date:
 
-        matches = self.get_matches(competition_id,season_id)
-        # Obtener el partido de la final
-        i = 0
-        final = None
-        for match in matches:
-            if matches[i].get('roundInfo', {}).get('name') == 'Final':
-                   final = match
-                   break
-            i+=1
+            matches = self.get_matches(competition_id,season_id)
+            # Obtener el partido de la final
+            i = 0
+            final = None
+            for match in matches:
+                if matches[i].get('roundInfo', {}).get('name') == 'Final':
+                    final = match
+                    break
+                i+=1
 
-        if final: # Es una copa (tiene final) #=================== VER QUE PASA SI HAY PENALES
-            if final["homeScore"]["current"] > final["awayScore"]["current"]:
-                champion = final["homeTeam"]
-            else:
-                champion = final["awayTeam"]
-        else: # Es una liga (no tiene final)
-            champion = self.get_team_general_stats(competition_id,season_id)['standings'][0]['rows'][0]
+            if final: # Es una copa (tiene final) #=================== VER QUE PASA SI HAY PENALES
+                if final["homeScore"]["current"] > final["awayScore"]["current"]:
+                    champion = final["homeTeam"]
+                else:
+                    champion = final["awayTeam"]
+            else: # Es una liga (no tiene final)
+                champion = self.get_team_general_stats(competition_id,season_id)['standings'][0]['rows'][0]
 
         return champion
 

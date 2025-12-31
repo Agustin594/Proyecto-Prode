@@ -9,7 +9,6 @@ def upsert_competition(db, competition):
             season,
             start_date,
             end_date,
-            top_scorer_id,
             champion_id
         )
         VALUES (
@@ -18,7 +17,6 @@ def upsert_competition(db, competition):
             %(season)s,
             %(start_date)s,
             %(end_date)s,
-            %(top_scorer_id)s,
             %(champion_id)s
         )
         ON CONFLICT (external_id)
@@ -26,7 +24,6 @@ def upsert_competition(db, competition):
             season = EXCLUDED.season,
             start_date = EXCLUDED.start_date,
             end_date = EXCLUDED.end_date,
-            top_scorer_id = EXCLUDED.top_scorer_id,
             champion_id = EXCLUDED.champion_id
     """, competition)
 
@@ -38,22 +35,20 @@ def sync_competitions(db, competition_id):
     
     info = client.get_competition(competition_id)
 
-    data = client.get_standings(competition_id, season["id"])
-    #------------------ ARREGLAR ---------------------------
-    champion = data["standings"][0]["rows"][0]["team"] # Supuesto campeon
+    data = client.get_champion(competition_id, season["id"])
+    if data != None:
+        champion_id = data["id"]
+    else:
+        champion_id = None
 
-    data = client.get_top_players(competition_id, season["id"])
-    #------------------ ARREGLAR ---------------------------
-    scorer = data[0]["player"] # Supuesto goleador
-
-    map_competition = normalize_competition(info, season, champion, scorer)
+    map_competition = normalize_competition(info, season, champion_id)
 
     upsert_competition(db, map_competition)   
 
-    now = "tiempo actual" ###############################################################
-    if now > map_competition["end_date"]:
-        update_tournament_data(db, competition_id)
-        evaluate_general_predictions(db, competition_id, map_competition["champion_id"], map_competition["top_scorer_id"])
+    #now = "tiempo actual" ###############################################################
+    #if now > map_competition["end_date"]:
+    #    update_tournament_data(db, competition_id)
+    #    evaluate_general_predictions(db, competition_id, map_competition["champion_id"], map_competition["top_scorer_id"])
 
 
 def calculate_points(real_champion, real_top_scorer, pred_champion, pred_top_scorer):

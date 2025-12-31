@@ -31,6 +31,7 @@ def upsert_match(db, match):
         DO UPDATE SET
             home_goals = EXCLUDED.home_goals,
             away_goals = EXCLUDED.away_goals,
+            date = EXCLUDED.date,
             play_off = EXCLUDED.play_off,
             qualified_team_id = EXCLUDED.qualified_team_id,
             status = EXCLUDED.status
@@ -38,6 +39,9 @@ def upsert_match(db, match):
 
 def finished_match(prev_status, new_status):
     return prev_status != "finished" and new_status == "finished"
+
+def get_internal_competition_id(db, competition_id: int) -> int:
+    return db.fetch_one("SELECT id FROM competition WHERE external_id = %s",(competition_id,))[0]
 
 def sync_matches(db, competition_id):
     client = Sofascore()
@@ -47,8 +51,10 @@ def sync_matches(db, competition_id):
     
     matches = client.get_matches(competition_id, season_id)
 
+    internal_competition_id = get_internal_competition_id(db, competition_id)
+
     for match in matches:
-        map_match = normalize_match(match)
+        map_match = normalize_match(match,internal_competition_id)
 
         existing = db.fetch_one(
             "SELECT status FROM match_ WHERE external_id = %s",
