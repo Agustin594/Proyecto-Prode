@@ -4,7 +4,7 @@
 #import numpy as np
 #from typing import Union, Sequence
 #import warnings
-#from pprint import pprint
+from pprint import pprint
 
 from botasaurus.request import request, Request
 from botasaurus.browser import browser, Driver
@@ -206,6 +206,20 @@ class Sofascore:
         data = self.get(f"/unique-tournament/{competition_id}")
         return data["uniqueTournament"]
     
+    def get_teams(self, competition_id: int, season_id: int) -> list[dict]:
+        """
+        Gets all the teams in a competition in a given season.
+        
+        :param competition_id: Competition id
+        :type competition_id: int
+        :param season_id: Season id
+        :type season_id: int
+        :return: Returns a dict list where each dict is a different team
+        :rtype: int
+        """
+        data = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/teams")
+        return data["teams"]
+    
     def get_team_stats(self, competition_id: int, season_id: int) -> list[dict]:
         """
         Gets all the stats about the teams from a competition in a given season.
@@ -283,8 +297,6 @@ class Sofascore:
 
         return champion
 
-    # PORQUE PIJA NO ANDAAAAAA
-    # Mal generalizado
     def get_player_data(self, competition_id: int, season_id: int) -> dict:
         """
         Gets the player data from a competition with its season.
@@ -299,6 +311,7 @@ class Sofascore:
         data = self.get(f"/unique-tournament/{competition_id}/season/{season_id}/statistics?accumulation=total&fields={self.concatenated_fields}")
         return data['results']
     
+    # -------------------------- Arreglar 
     def get_top_scorers(self, competition_id: int, season_id: int) -> list:
         """
         Creates a zip list with (player id, goals) and sort the list based on goals in descending order, getting the top scorers.
@@ -310,12 +323,12 @@ class Sofascore:
         :return: Returns a list of the league scorers
         :rtype: dict
         """
-        player_stats = self.get_scorers(competition_id, season_id)
+        player_goals = self.get_player_data(competition_id, season_id)
         
         ids = []
         goals = []
 
-        for stat in player_stats["results"]:
+        for stat in player_goals:
             ids.append(stat["player"]["id"])
             goals.append(stat["goals"])
 
@@ -337,14 +350,3 @@ class Sofascore:
         max_goals = top_scorer[0][1]
         max_scorer = [(player_id, goals) for player_id, goals in top_scorer if goals == max_goals]
         return max_scorer
-
-def main():
-    client = Sofascore()
-
-    top_scorers = client.get_top_scorers(7, 61644)
-
-    print(top_scorers)
-
-    max_scorers = client.get_max_scorers(top_scorers)
-
-    print(max_scorers)

@@ -2,6 +2,7 @@ from sofascoreclient import Sofascore
 from competition import normalize_competition
 
 def upsert_competition(db, competition):
+    #Agregar image_name
     db.execute("""
         INSERT INTO competition (
             external_id,
@@ -31,17 +32,17 @@ def sync_competitions(db, competition_id):
     client = Sofascore()
 
     seasons = client.get_seasons(competition_id)
-    season = max(seasons, key=lambda s: s["year"]) # Se supone que devuelve la temporada actual
+    curret_season = seasons[0]
     
     info = client.get_competition(competition_id)
 
-    data = client.get_champion(competition_id, season["id"])
+    data = client.get_champion(competition_id, curret_season["id"])
     if data != None:
         champion_id = data["id"]
     else:
         champion_id = None
 
-    map_competition = normalize_competition(info, season, champion_id)
+    map_competition = normalize_competition(info, curret_season, champion_id)
 
     upsert_competition(db, map_competition)   
 

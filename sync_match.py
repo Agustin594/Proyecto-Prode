@@ -43,18 +43,35 @@ def finished_match(prev_status, new_status):
 def get_internal_competition_id(db, competition_id: int) -> int:
     return db.fetch_one("SELECT id FROM competition WHERE external_id = %s",(competition_id,))[0]
 
+def get_internal_team_id(db, team_id: int) -> int:
+    return db.fetch_one("SELECT id FROM team WHERE external_id = %s",(team_id,))[0]
+
 def sync_matches(db, competition_id):
     client = Sofascore()
 
     seasons = client.get_seasons(competition_id)
-    season_id = max(seasons, key=lambda s: s["year"])["id"] # current season ID
+    current_season_id = seasons[0]["id"] # current season ID
     
-    matches = client.get_matches(competition_id, season_id)
+    matches = client.get_matches(competition_id, current_season_id)
 
     internal_competition_id = get_internal_competition_id(db, competition_id)
 
     for match in matches:
-        map_match = normalize_match(match,internal_competition_id)
+        internal_home_team_id = get_internal_team_id(db, match["homeTeam"]["id"])
+        internal_away_team_id = get_internal_team_id(db, match["awayTeam"]["id"])
+        play_off = match.get('roundInfo', {}).get('name') != None
+        if play_off:
+            if match["status"]["type"] == "finished":
+                if match["homeScore"]["current"] > match["awayScore"]["current"]: # VER PENALES
+                    internal_qualified_team_id = internal_home_team_id
+                else:
+                    internal_qualified_team_id = internal_away_team_id
+            else:
+                internal_qualified_team_id = None
+        else:
+            internal_qualified_team_id = None
+
+        map_match = normalize_match(match,internal_competition_id, internal_home_team_id, internal_away_team_id, internal_qualified_team_id)
 
         existing = db.fetch_one(
             "SELECT status FROM match_ WHERE external_id = %s",
@@ -63,7 +80,7 @@ def sync_matches(db, competition_id):
 
         upsert_match(db, map_match)
 
-        if existing and finished_match(existing["status"], map_match["status"]):
+        if existing and finished_match(existing[0], map_match["status"]):
             evaluate_match_predictions(db,match_id=map_match["external_id"],real_h=map_match["home_goals"],real_a=map_match["away_goals"])
 
 def calculate_points(real_h, real_a, pred_h, pred_a):
