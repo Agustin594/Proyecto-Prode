@@ -18,7 +18,8 @@ function setupTournamentFormHandler()
         try 
         { 
             console.log(tournament);
-            await tournamentAPI.create(tournament);
+            result = await tournamentAPI.create(tournament);
+            console.log(result);
             form.reset();
         }
         catch (err)

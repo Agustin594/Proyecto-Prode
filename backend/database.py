@@ -11,11 +11,15 @@ class Database:
 
     def fetch_one(self, sql, params=None):
         self.cur.execute(sql, params)
-        return self.cur.fetchone()
+        result = self.cur.fetchone()
+        self.conn.commit()
+        return result
 
     def fetch_all(self, sql, params=None):
         self.cur.execute(sql, params)
-        return self.cur.fetchall()
+        result = self.cur.fetchall()
+        self.conn.commit()
+        return result
 
     def close(self):
         self.cur.close()
