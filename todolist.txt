@@ -6,6 +6,8 @@
 6- Crear los "async"
 7- Arreglar la determinación de equipo clasificado y/o campeón (ver la posibilidad de partidos ida y vuelta y penales)
 8- Nombre corto para los equipos
+9- ARREGLAR CREAR TORNEO
+10- TOKENS
 
 Registro de usuario
 Inscripción a torneo

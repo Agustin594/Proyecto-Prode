@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProdeBET</title>
+</head>
+<body>
+    <h2>Create Tournament</h2>
+
+    <form id="tournamentForm">
+        <input type="hidden" id="competitionId">
+        <label for="">Competition</label>
+        <input type="number" id="competition">
+
+        <label for="">Open</label>
+        <input type="checkbox" id="open">
+
+        <label for="">Participant Limit</label>
+        <input type="number" id="participants">
+
+        <label for="">Entry Price</label>
+        <input type="number" id="price">
+
+        <label for="">Public</label>
+        <input type="checkbox" id="public">
+
+        <button type="submit">Create</button>
+    </form>
+
+    <h2>Tournaments</h2>
+    <div id="tournamentList"></div>
+
+    <script type="module" src="tournamentController.js"></script>
+</body>
+</html>

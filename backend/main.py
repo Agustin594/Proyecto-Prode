@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from schemas import TorneoCreate
-from tournament_services import create_tournament
+import tournament_services as ts
 from fastapi.middleware.cors import CORSMiddleware
+from auth import router
 
 app = FastAPI()
+
+app.include_router(router, prefix="/auth")
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,5 +25,9 @@ def root():
 
 @app.post("/tournament")
 def crear_torneo(data: TorneoCreate):
-    tournament_id = create_tournament(data)
+    tournament_id = ts.create_tournament(data)
     return {"tournament_id": tournament_id}
+
+@app.get("/tournament")
+def get_tournaments():
+    return ts.get_tournaments()
