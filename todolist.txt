@@ -8,6 +8,7 @@
 8- Nombre corto para los equipos
 9- ARREGLAR CREAR TORNEO
 10- TOKENS
+11- En torneos solo dejar los disponibles, no solo en cantidad de participantes sino tambien si no me habia unido anteriormente
 
 Registro de usuario
 Inscripción a torneo

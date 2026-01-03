@@ -1,8 +1,9 @@
-from fastapi import FastAPI
-from schemas import TorneoCreate
+from fastapi import FastAPI, Depends
+from schemas import TournamentCreate, TournamentRegister
 import tournament_services as ts
 from fastapi.middleware.cors import CORSMiddleware
 from auth import router
+from dependencies import get_current_user_id
 
 app = FastAPI()
 
@@ -24,10 +25,19 @@ def root():
     return {"status": "ok"}
 
 @app.post("/tournament")
-def crear_torneo(data: TorneoCreate):
-    tournament_id = ts.create_tournament(data)
+def crear_torneo(data: TournamentCreate, user_id:int = Depends(get_current_user_id)):
+    tournament_id = ts.create_tournament(user_id, data)
     return {"tournament_id": tournament_id}
 
 @app.get("/tournament")
 def get_tournaments():
     return ts.get_tournaments()
+
+@app.post("/tournament/register")
+def inscription(data: TournamentRegister, user_id:int = Depends(get_current_user_id)):
+    tournament_id = ts.tournament_inscription(user_id, data)
+    return {"tournament_id": tournament_id}
+
+@app.get("/tournament/my")
+def get_tournaments_by_id(user_id:int = Depends(get_current_user_id)):
+    return ts.get_tournaments_by_id(user_id)

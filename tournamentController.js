@@ -1,9 +1,18 @@
 import { tournamentAPI } from './tournamentAPI.js';
+export default loadTournaments;
 
 document.addEventListener('DOMContentLoaded', () => 
 {
+    const token = localStorage.getItem("token")
+
+    if (!token) {
+        window.location.href = "login.html"
+    }
+
+    //initSelect();
     setupTournamentFormHandler();
     loadTournaments();
+    loadOwnTournaments();
 });
 
 function setupTournamentFormHandler() 
@@ -22,6 +31,8 @@ function setupTournamentFormHandler()
             const result = await tournamentAPI.create(tournament);
             console.log(result);
             form.reset();
+            loadTournaments();
+            loadOwnTournaments();
         }
         catch (err)
         {
@@ -34,7 +45,6 @@ function setupTournamentFormHandler()
 function getFormData() {
     return {
         competition_id: document.getElementById('competition').value.trim(),
-        open: document.getElementById('open').checked,
         participant_limit: parseInt(document.getElementById('participants').value.trim(), 10),
         entry_price: parseInt(document.getElementById('price').value.trim(), 10),
         public: document.getElementById('public').checked
@@ -65,7 +75,7 @@ async function loadTournaments()
         //    rel.approved = Number(rel.approved);
         //});
         
-        renderTournamentTable(tournaments);
+        renderTournamentList(tournaments, "tournamentList", "register");
     } 
     catch (err) 
     {
@@ -74,9 +84,24 @@ async function loadTournaments()
     }
 }
 
-function renderTournamentTable(tournaments) 
+async function loadOwnTournaments() 
 {
-    const list = document.getElementById('tournamentList');
+    try 
+    {
+        const tournaments = await tournamentAPI.fetchMine();
+        
+        renderTournamentList(tournaments, "myTournamentList", "delete");
+    } 
+    catch (err) 
+    {
+        console.error('Tournament charge error:', err.message);
+        errormessage();
+    }
+}
+
+function renderTournamentList(tournaments, id, type) 
+{
+    const list = document.getElementById(id);
     list.replaceChildren();
 
     tournaments.forEach(t => 
@@ -92,8 +117,31 @@ function renderTournamentTable(tournaments)
         p.textContent = `${t.name} — Participantes: ${t.registered_participants}/${t.participant_limit} — ${price} — ${visibility} — ${status}`;
 
         div.appendChild(p);
+
+        if(type == "register") {
+            registerButton(div, t.id);
+        } else if(type == "delete") {
+            deleteButton(div, t.id);
+        }
+
         list.appendChild(div);
     });
+}
+
+function registerButton(container, tournament_id) {
+    const btn = document.createElement("button");
+    btn.dataset.type = "register";
+    btn.textContent = "Register";
+    btn.dataset.tournamentId = tournament_id;
+    container.appendChild(btn);
+}
+
+function deleteButton(container, tournament_id) {
+    const btn = document.createElement("button");
+    btn.dataset.type = "delete";
+    btn.textContent = "Delete";
+    btn.dataset.tournamentId = tournament_id;
+    container.appendChild(btn);
 }
 
 function errormessage(){
