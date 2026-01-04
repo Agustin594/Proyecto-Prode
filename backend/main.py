@@ -38,6 +38,11 @@ def inscription(data: TournamentRegister, user_id:int = Depends(get_current_user
     tournament_id = ts.tournament_inscription(user_id, data)
     return {"tournament_id": tournament_id}
 
+@app.delete("/tournament/register")
+def delete(data: TournamentRegister, user_id:int = Depends(get_current_user_id)):
+    tournament_id = ts.delete_tournament_user(user_id, data)
+    return {"tournament_id": tournament_id} ###########
+
 @app.get("/tournament/my")
 def get_tournaments_by_id(user_id:int = Depends(get_current_user_id)):
     return ts.get_tournaments_by_id(user_id)

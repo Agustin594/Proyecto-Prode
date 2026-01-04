@@ -43,3 +43,7 @@ def get_tournaments_by_id(user_id):
 def tournament_inscription(user_id, data):
     ##### VALIDAR
     tr.inscription(user_id, data.tournament_id)
+
+def delete_tournament_user(user_id, data):
+    #### VALIDAR
+    return tr.delete_user(user_id, data.tournament_id)

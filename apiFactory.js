@@ -53,9 +53,9 @@ export function createAPI(moduleName, config = {})
         {
             return await sendJSON('PUT', data);
         },
-        async remove(id)
+        async remove(data)
         {
-            return await sendJSON('DELETE', { id });
+            return await sendJSON('DELETE', data);
         }
     };
 }

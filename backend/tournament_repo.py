@@ -84,3 +84,40 @@ def inscription(user_id, tournament_id):
     db.execute(query, (tournament_id,))
 
     registration(db, user_id, tournament_id)
+
+def delete_user(user_id, tournament_id):
+    db = Database()
+    
+    query = """
+        DELETE FROM registration WHERE user_id = %s AND tournament_id = %s
+    """
+
+    db.execute(query, (user_id, tournament_id))
+
+    query = """
+        DELETE FROM score WHERE user_id = %s AND tournament_id = %s
+    """
+
+    db.execute(query, (user_id, tournament_id))
+
+    query = """
+        DELETE FROM special_prediction WHERE user_id = %s AND tournament_id = %s
+    """
+
+    db.execute(query, (user_id, tournament_id))
+
+    query = """
+        DELETE FROM match_prediction WHERE user_id = %s AND tournament_id = %s
+    """
+
+    db.execute(query, (user_id, tournament_id))
+
+    query = """
+        UPDATE tournament
+        SET registered_participants = registered_participants - 1
+        WHERE id = %s AND registered_participants > 0
+    """
+
+    db.execute(query, (tournament_id,))
+
+    return tournament_id
