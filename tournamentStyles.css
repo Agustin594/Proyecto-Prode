@@ -1,0 +1,7 @@
+.tournament-card {
+    cursor: pointer;
+}
+
+.tournament-card:hover {
+    background-color: lightgray;
+}

@@ -53,7 +53,7 @@ def fetch_all():
     """
     return db.fetch_all(query)
 
-def fetch_by_id(user_id):
+def fetch_by_user_id(user_id):
     db = Database()
 
     query = """
@@ -71,6 +71,71 @@ def fetch_by_id(user_id):
     """
 
     return db.fetch_all(query, (user_id,))
+
+def fetch_by_id(tournament_id):
+    db = Database()
+
+    query = """
+        SELECT t.id,
+               c.name,
+               t.open,
+               t.registered_participants,
+               t.participant_limit,
+               t.entry_price,
+               t.public
+        FROM tournament as t
+        INNER JOIN competition as c ON c.id = t.competition_id
+        WHERE t.id = %s
+    """
+
+    return db.fetch_all(query, (tournament_id,))
+
+def fetch_standings(tournament_id):
+    db = Database()
+
+    query = """
+        SELECT u.name, s.points
+        FROM score as s
+        INNER JOIN user_ as u ON u.id = s.user_id
+        WHERE s.tournament_id = %s
+        ORDER BY s.points DESC
+    """
+
+    return db.fetch_all(query, (tournament_id,))
+
+def fetch_matches(tournament_id):
+    db = Database()
+
+    query = """
+        SELECT m.id,
+            m.date,
+            th.name AS home_team_name,
+            ta.name AS away_team_name,
+            m.home_goals,
+            m.away_goals
+        FROM match_ as m
+        JOIN team as th ON m.home_team_id = th.id
+        JOIN team as ta ON m.away_team_id = ta.id
+        JOIN tournament as t ON t.competition_id = m.competition_id
+        WHERE t.id = %s 
+        ORDER BY m.date ASC
+    """
+
+    return db.fetch_all(query, (tournament_id,))
+
+def fetch_scorers(tournament_id):
+    db = Database()
+
+    query = """
+        SELECT p.name, g.goals
+        FROM goalscorers as g
+        INNER JOIN player as p ON p.id = g.player_id
+        JOIN tournament as t ON t.competition_id = g.competition_id
+        WHERE t.id = %s 
+        ORDER BY g.goals DESC
+    """
+
+    return db.fetch_all(query, (tournament_id,))
 
 def inscription(user_id, tournament_id):
     db = Database()

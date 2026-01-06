@@ -9,10 +9,23 @@ document.addEventListener('DOMContentLoaded', () =>
         window.location.href = "login.html"
     }
 
-    //initSelect();
-    setupTournamentFormHandler();
-    loadTournaments();
-    loadOwnTournaments();
+    const params = new URLSearchParams(window.location.search);
+    const tournamentId = params.get("id");
+
+    if (tournamentId) {
+        showTournamentDetail(tournamentId);
+        loadTournamentData(tournamentId);
+        loadTournamentUserTable(tournamentId);
+        loadTournamentMatchTable(tournamentId);
+        loadTournamentGoalscorerTable(tournamentId);
+    } else {
+        showTournamentList();
+        //initSelect();
+        setupTournamentFormHandler();
+        loadTournaments();
+        loadOwnTournaments();
+        setupTournamentData();
+    }
 });
 
 function setupTournamentFormHandler() 
@@ -107,6 +120,8 @@ function renderTournamentList(tournaments, id, type)
     tournaments.forEach(t => 
     {
         const div = document.createElement('div');
+        div.classList.add("tournament-card");
+        div.dataset.id = t.id;
 
         const p = document.createElement("p");
 
@@ -159,4 +174,162 @@ function createErrorCell(){
     const p = document.createElement('p');
     p.textContent = "Data charge error.";
     return p;
+}
+
+function setupTournamentData(){
+    document.addEventListener("click", (e) => {
+        const card = e.target.closest(".tournament-card");
+        if (!card) return;
+
+        const tournamentId = card.dataset.id;
+
+        // si clickea el botón interno, evitás conflicto
+        if (e.target.tagName === "BUTTON") return;
+
+        window.location.href = `tournament.html?id=${tournamentId}`;
+    });
+}
+
+function showTournamentList() {
+  document.getElementById("tournament-list").hidden = false;
+  document.getElementById("tournament-detail").hidden = true;
+}
+
+function showTournamentDetail(id) {
+  document.getElementById("tournament-list").hidden = true;
+  document.getElementById("tournament-detail").hidden = false;
+}
+
+async function loadTournamentData(tournamentId) 
+{
+    try 
+    {
+        const t = await tournamentAPI.fetchById(tournamentId);
+        
+        const div = document.getElementById('tournament-data');
+        div.replaceChildren();
+
+        
+        const p = document.createElement('p');
+
+        const status = t.open ? "Inscripción abierta" : "Inscripción cerrada";
+        const visibility = t.public ? "Público" : "Privado";
+        const price = t.entry_price === 0 ? "Gratis" : `$${t.entry_price}`;
+
+        p.textContent = `${t.name} — Participantes: ${t.registered_participants}/${t.participant_limit} — ${price} — ${visibility} — ${status}`;
+
+        div.appendChild(p);
+        
+    } 
+    catch (err) 
+    {
+        console.error('Error cargando inscripciones:', err.message);
+        errormessage();
+    }
+}
+
+async function loadTournamentUserTable(tournamentId) 
+{
+    try 
+    {
+        const users = await tournamentAPI.fetchByPath(`${tournamentId}/standings`);
+        
+        renderStandingTable(users);
+    } 
+    catch (err) 
+    {
+        console.error('Error cargando posiciones:', err.message);
+        errormessage();
+    }
+}
+
+
+function renderStandingTable(users) 
+{
+    const tbody = document.getElementById('user-table');
+    tbody.replaceChildren();
+
+    let pos = 1;
+    users.forEach(u => 
+    {
+        const tr = document.createElement('tr');
+
+        tr.appendChild(createCell(pos));
+        tr.appendChild(createCell(u.user_name));
+        tr.appendChild(createCell(u.points));
+
+        tbody.appendChild(tr);
+
+        pos+=1;
+    });
+}
+
+function createCell(text) 
+{
+    const td = document.createElement('td');
+    td.textContent = text;
+    return td;
+}
+
+async function loadTournamentMatchTable(tournamentId) {
+    try 
+    {
+        const matches = await tournamentAPI.fetchByPath(`${tournamentId}/matches`);
+        
+        renderMatchTable(matches);
+    } 
+    catch (err) 
+    {
+        console.error('Error cargando partidos:', err.message);
+        errormessage();
+    }
+}
+
+function renderMatchTable(matches) 
+{
+    const tbody = document.getElementById('match-table');
+    tbody.replaceChildren();
+
+    matches.forEach(m => 
+    {
+        const tr = document.createElement('tr');
+
+        tr.appendChild(createCell(m.date));
+        tr.appendChild(createCell(m.home_team_name));
+        tr.appendChild(createCell(m.home_goals));
+        tr.appendChild(createCell(m.away_goals));
+        tr.appendChild(createCell(m.away_team_name));
+
+        tbody.appendChild(tr);
+    });
+}
+
+async function loadTournamentGoalscorerTable(tournamentId) {
+    try 
+    {
+        const scorers = await tournamentAPI.fetchByPath(`${tournamentId}/scorers`);
+        
+        renderScorerTable(scorers);
+    } 
+    catch (err) 
+    {
+        console.error('Error cargando goleadores:', err.message);
+        errormessage();
+    }
+}
+
+function renderScorerTable(scorers) 
+{
+    const tbody = document.getElementById('scorer-table');
+    tbody.replaceChildren();
+
+    scorers.forEach(s => 
+    {
+        const tr = document.createElement('tr');
+
+        tr.appendChild(createCell(s.name));
+        tr.appendChild(createCell(s.goals));
+
+        tbody.appendChild(tr);
+    });
 }

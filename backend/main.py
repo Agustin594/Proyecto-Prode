@@ -33,6 +33,22 @@ def crear_torneo(data: TournamentCreate, user_id:int = Depends(get_current_user_
 def get_tournaments():
     return ts.get_tournaments()
 
+@app.get("/tournament/{tournament_id}")
+def get_tournament_by_id(tournament_id: int):
+    return ts.get_tournament_by_id(tournament_id)
+
+@app.get("/tournament/{tournament_id}/standings")
+def get_tournament_standings(tournament_id: int):
+    return ts.get_tournament_standings(tournament_id)
+
+@app.get("/tournament/{tournament_id}/matches")
+def get_tournament_matches(tournament_id: int):
+    return ts.get_tournament_matches(tournament_id)
+
+@app.get("/tournament/{tournament_id}/scorers")
+def get_tournament_scorers(tournament_id: int):
+    return ts.get_tournament_scorers(tournament_id)
+
 @app.post("/tournament/register")
 def inscription(data: TournamentRegister, user_id:int = Depends(get_current_user_id)):
     tournament_id = ts.tournament_inscription(user_id, data)
@@ -44,5 +60,5 @@ def delete(data: TournamentRegister, user_id:int = Depends(get_current_user_id))
     return {"tournament_id": tournament_id} ###########
 
 @app.get("/tournament/my")
-def get_tournaments_by_id(user_id:int = Depends(get_current_user_id)):
-    return ts.get_tournaments_by_id(user_id)
+def get_tournaments_by_user_id(user_id:int = Depends(get_current_user_id)):
+    return ts.get_tournaments_by_user_id(user_id)

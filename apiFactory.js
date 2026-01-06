@@ -45,6 +45,20 @@ export function createAPI(moduleName, config = {})
             if (!res.ok) throw new Error("No se pudieron obtener los datos");
             return await res.json();
         },
+        async fetchById(id) {
+            const res = await fetch(`${API_URL}/${id}`, {
+                headers: getHeaders()
+            });
+            if (!res.ok) throw new Error("No se pudieron obtener los datos");
+            return await res.json();
+        },
+        async fetchByPath(path) {
+            const res = await fetch(`${API_URL}/${path}`, {
+                headers: getHeaders()
+            });
+            if (!res.ok) throw new Error("No se pudieron obtener los datos");
+            return await res.json();
+        },
         async create(data)
         {
             return await sendJSON('POST', data);
