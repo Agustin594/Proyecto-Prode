@@ -8,3 +8,8 @@ class TournamentCreate(BaseModel):
 
 class TournamentRegister(BaseModel):
     tournament_id: int
+
+class SpecialPrediction(BaseModel):
+    tournament_id: int
+    champion_id: int
+    top_scorer_id: int

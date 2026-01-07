@@ -12,17 +12,18 @@
         <h2>Create Tournament</h2>
 
         <form id="tournamentForm">
-            <input type="hidden" id="competitionId">
-            <label for="">Competition</label>
-            <input type="number" id="competition">
+            <label for="competitionIdSelect">Competition</label>
+            <select name="competition" id="competitionIdSelect">
+                <option value="" disabled selected>Select competition</option>
+            </select>
 
-            <label for="">Participant Limit</label>
+            <label for="participants">Participant Limit</label>
             <input type="number" id="participants">
 
-            <label for="">Entry Price</label>
+            <label for="price">Entry Price</label>
             <input type="number" id="price">
 
-            <label for="">Public</label>
+            <label for="public">Public</label>
             <input type="checkbox" id="public">
 
             <button type="submit">Create</button>
@@ -37,31 +38,47 @@
     
     <!-- Detalle del torneo -->
     <section id="tournament-detail" hidden>
-        <a href="tournament.html">Regresar</a>
+        <a href="tournament.html">Back</a>
 
         <div id="tournament-data"></div>
+
+        <div id="prediction-container" hidden>
+            <form action="" id="predictionForm">
+                <label for="championIdSelect">Champion</label>
+                <select name="champion" id="championIdSelect">
+                    <option value="" disabled selected>Select champion</option>
+                </select>
+
+                <label for="goalscorerIdSelect">Goalscorer</label>
+                <select name="goalscorer" id="goalscorerIdSelect">
+                    <option value="" disabled selected>Select goalscorer</option>
+                </select>
+
+                <button type="submit">Create Prediction</button>
+            </form>
+        </div>
 
         <table>
             <thead>
                 <tr>
                     <th>Pos</th>
-                    <th>Usuario</th>
+                    <th>User</th>
                     <th>PTS</th>
                 </tr>
             </thead>
             <tbody id="user-table"></tbody>
         </table>
 
-        <table>
+        <table id="matches">
             <thead></thead>
             <tbody id="match-table"></tbody>
         </table>
 
-        <table>
+        <table id="scorers">
             <thead>
                 <tr>
-                    <th>Jugador</th>
-                    <th>Goles</th>
+                    <th>Player</th>
+                    <th>Goals</th>
                 </tr>
             </thead>
             <tbody id="scorer-table"></tbody>

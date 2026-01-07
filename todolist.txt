@@ -10,7 +10,8 @@
 10- TOKENS
 11- En torneos solo dejar los disponibles, no solo en cantidad de participantes sino tambien si no me habia unido anteriormente
 12- Bloquear página sin login
-13- Arreglar lo de importar funciones
+13- Arreglar lo de importar funciones (Ver si sirve importar la creacion de la pag de una)
+
 
 Registro de usuario
 Inscripción a torneo

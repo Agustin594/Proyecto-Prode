@@ -67,6 +67,19 @@ export function createAPI(moduleName, config = {})
         {
             return await sendJSON('PUT', data);
         },
+        async updateWithPath(path, data)
+        {
+            const method = 'PUT'
+            const res = await fetch(`${API_URL}/${path}`,
+            {
+                method,
+                headers: getHeaders(),
+                body: JSON.stringify(data)
+            });
+
+        if (!res.ok) throw new Error(`Error in ${method}`);
+        return await res.json();
+        },
         async remove(data)
         {
             return await sendJSON('DELETE', data);

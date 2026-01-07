@@ -53,6 +53,15 @@ def fetch_all():
     """
     return db.fetch_all(query)
 
+def fetch_competitions():
+    db = Database()
+    
+    query = """
+        SELECT id, name
+        FROM competition
+    """
+    return db.fetch_all(query)
+
 def fetch_by_user_id(user_id):
     db = Database()
 
@@ -150,6 +159,15 @@ def inscription(user_id, tournament_id):
 
     registration(db, user_id, tournament_id)
 
+def fetch_inscription(tournament_id, user_id):
+    db = Database()
+
+    query = """
+        SELECT id FROM registration WHERE tournament_id = %s AND user_id = %s
+    """
+
+    return db.fetch_all(query, (tournament_id, user_id))
+
 def delete_user(user_id, tournament_id):
     db = Database()
     
@@ -186,3 +204,14 @@ def delete_user(user_id, tournament_id):
     db.execute(query, (tournament_id,))
 
     return tournament_id
+
+def update_special_prediction(data, user_id):
+    db = Database()
+
+    query = """
+        UPDATE special_prediction 
+        SET champion_id = %s, top_scorer_id = %s
+        WHERE tournament_id = %s AND user_id %s 
+    """
+
+    db.execute(query, (data.champion_id, data.top_scorer_id, data.tournament_id, user_id))

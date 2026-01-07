@@ -13,20 +13,55 @@ document.addEventListener('DOMContentLoaded', () =>
     const tournamentId = params.get("id");
 
     if (tournamentId) {
-        showTournamentDetail(tournamentId);
+        showTournamentDetail();
         loadTournamentData(tournamentId);
         loadTournamentUserTable(tournamentId);
-        loadTournamentMatchTable(tournamentId);
-        loadTournamentGoalscorerTable(tournamentId);
+        initTournament(tournamentId);
     } else {
+        initSelect();
         showTournamentList();
-        //initSelect();
         setupTournamentFormHandler();
         loadTournaments();
         loadOwnTournaments();
         setupTournamentData();
     }
 });
+
+async function initTournament(tournamentId) {
+    const registered = await isRegistered(tournamentId);
+
+    if (registered) {
+        loadSpecialPredictionForm(tournamentId);
+        //setupSpecialPredictionForm(tournamentId);
+        setupAbandonButton(tournamentId);
+        loadTournamentMatchTable(tournamentId);
+        loadTournamentGoalscorerTable(tournamentId);
+    } else {
+        document.getElementById("matches").hidden = true;
+        document.getElementById("scorers").hidden = true;
+        setupRegisterButton(tournamentId);
+    }
+}
+
+async function initSelect() 
+{
+    try 
+    {
+        const competitions = await tournamentAPI.fetchByPath(`competitions`);
+        const competitionSelect = document.getElementById('competitionIdSelect');
+        competitions.forEach(c => 
+        {
+            const option = document.createElement('option');
+            option.value = c.id;
+            option.textContent = c.name;
+            competitionSelect.appendChild(option);
+        });
+    } 
+    catch (err) 
+    {
+        console.error('Error cargando competiciones:', err.message);
+    }
+}
 
 function setupTournamentFormHandler() 
 {
@@ -57,7 +92,7 @@ function setupTournamentFormHandler()
 
 function getFormData() {
     return {
-        competition_id: document.getElementById('competition').value.trim(),
+        competition_id: document.getElementById('competitionIdSelect').value,
         participant_limit: parseInt(document.getElementById('participants').value.trim(), 10),
         entry_price: parseInt(document.getElementById('price').value.trim(), 10),
         public: document.getElementById('public').checked
@@ -69,24 +104,6 @@ async function loadTournaments()
     try 
     {
         const tournaments = await tournamentAPI.fetchAll();
-        
-        /**
-         * DEBUG
-         */
-        //console.log(relations);
-
-        /**
-         * En JavaScript: Cualquier string que no esté vacío ("") es considerado truthy.
-         * Entonces "0" (que es el valor que llega desde el backend) es truthy,
-         * ¡aunque conceptualmente sea falso! por eso: 
-         * Se necesita convertir ese string "0" a un número real 
-         * o asegurarte de comparar el valor exactamente. 
-         * Con el siguiente código se convierten todos los string approved a enteros.
-         */
-        //relations.forEach(rel => 
-        //{
-        //    rel.approved = Number(rel.approved);
-        //});
         
         renderTournamentList(tournaments, "tournamentList", "register");
     } 
@@ -117,30 +134,36 @@ function renderTournamentList(tournaments, id, type)
     const list = document.getElementById(id);
     list.replaceChildren();
 
-    tournaments.forEach(t => 
-    {
-        const div = document.createElement('div');
-        div.classList.add("tournament-card");
-        div.dataset.id = t.id;
-
+    if(tournaments.length === 0){
         const p = document.createElement("p");
+        p.textContent = "No hay torneos disponibles.";
+        list.appendChild(p);
+    } else {
+        tournaments.forEach(t => 
+        {
+            const div = document.createElement('div');
+            div.classList.add("tournament-card");
+            div.dataset.id = t.id;
 
-        const status = t.open ? "Inscripción abierta" : "Inscripción cerrada";
-        const visibility = t.public ? "Público" : "Privado";
-        const price = t.entry_price === 0 ? "Gratis" : `$${t.entry_price}`;
+            const p = document.createElement("p");
 
-        p.textContent = `${t.name} — Participantes: ${t.registered_participants}/${t.participant_limit} — ${price} — ${visibility} — ${status}`;
+            const status = t.open ? "Inscripción abierta" : "Inscripción cerrada";
+            const visibility = t.public ? "Público" : "Privado";
+            const price = t.entry_price === 0 ? "Gratis" : `$${t.entry_price}`;
 
-        div.appendChild(p);
+            p.textContent = `${t.name} — Participantes: ${t.registered_participants}/${t.participant_limit} — ${price} — ${visibility} — ${status}`;
 
-        if(type == "register") {
-            registerButton(div, t.id);
-        } else if(type == "delete") {
-            deleteButton(div, t.id);
-        }
+            div.appendChild(p);
 
-        list.appendChild(div);
-    });
+            if(type == "register") {
+                registerButton(div, t.id);
+            } else if(type == "delete") {
+                deleteButton(div, t.id);
+            }
+
+            list.appendChild(div);
+        });
+    }
 }
 
 function registerButton(container, tournament_id) {
@@ -195,7 +218,7 @@ function showTournamentList() {
   document.getElementById("tournament-detail").hidden = true;
 }
 
-function showTournamentDetail(id) {
+function showTournamentDetail() {
   document.getElementById("tournament-list").hidden = true;
   document.getElementById("tournament-detail").hidden = false;
 }
@@ -332,4 +355,60 @@ function renderScorerTable(scorers)
 
         tbody.appendChild(tr);
     });
+}
+
+async function isRegistered(tournamentId){
+    const register = await tournamentAPI.fetchByPath(`${tournamentId}/inscription`);
+    console.log(register);
+    return register.length === 1;
+}
+
+function loadSpecialPredictionForm(tournamentId){
+    document.getElementById("prediction-container").hidden = false;
+    //initTeamSelect();
+    //initPlayerSelect();
+}
+
+function setupSpecialPredictionForm(tournamentId) {
+  const form = document.getElementById('predictionForm');
+  form.addEventListener('submit', async e => 
+  {
+        e.preventDefault();
+        const prediction = getPredictionFormData(tournamentId);
+
+        // Validaciones
+
+        try 
+        { 
+            await tournamentAPI.updateWithPath(`${tournamentId}/prediction`, prediction);
+            form.reset();
+            loadTournaments();
+            loadOwnTournaments();
+        }
+        catch (err)
+        {
+            console.log("ERROR: ", err);
+            alert("It couldn't create the tournament.");
+        }
+  });
+}
+
+function getPredictionFormData(tournamentId) {
+    return {
+        tournament_id: tournamentId,
+        champion_id: document.getElementById('championIdSelect').value,
+        top_scorer_id: document.getElementById('goalscorerIdSelect').value
+        };
+}
+
+function setupAbandonButton(tournamentId){
+    const container = document.getElementById("prediction-container");
+    deleteButton(container, tournamentId);
+}
+
+function setupRegisterButton(tournamentId){
+    const data = document.getElementById("tournament-data");
+    const container = document.createElement("div");
+    registerButton(container, tournamentId);
+    data.appendChild(container);
 }

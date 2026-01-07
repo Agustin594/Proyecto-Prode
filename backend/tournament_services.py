@@ -6,6 +6,18 @@ def create_tournament(user_id, data):
 
     return tr.insert(user_id, data.competition_id, data.participant_limit, data.entry_price, data.public)
 
+def get_competitions():
+    rows = tr.fetch_competitions()
+
+    competitions = []
+    for r in rows:
+        competitions.append({
+            "id": r[0],
+            "name": r[1]
+        })
+
+    return competitions
+
 def get_tournaments():
     rows = tr.fetch_all()
 
@@ -22,6 +34,17 @@ def get_tournaments():
         })
 
     return tournaments
+
+def get_inscription(tournament_id, user_id): 
+    rows = tr.fetch_inscription(tournament_id, user_id)
+
+    data = []
+    for r in rows:
+        data.append({
+            "id": r[0]
+        })
+
+    return data
 
 def get_tournaments_by_user_id(user_id):
     rows = tr.fetch_by_user_id(user_id)
@@ -103,3 +126,7 @@ def get_tournament_scorers(tournament_id):
         })
 
     return scorers
+
+def update_special_prediction(data, user_id):
+    ###### VALIDACIONES
+    tr.update_special_prediction(data, user_id)
