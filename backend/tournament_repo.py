@@ -19,22 +19,35 @@ def registration(db, user_id, tournament_id):
 
     db.execute(query, (user_id, tournament_id))
 
+def get_season(db, competition_id):
+    query = """
+        SELECT MAX(season_id)
+        FROM season
+        WHERE competition_id = %s
+    """
+
+    return db.fetch_one(query, (competition_id,))[0] ########
+
 def insert(user_id, competition_id, participant_limit, entry_price, public):
     db = Database()
     
+    season_id = get_season(db, competition_id)
+
     query = """
         INSERT INTO tournament (
             competition_id,
+            season_id,
             registered_participants,
             participant_limit,
             entry_price,
             public
         )
-        VALUES (%s, 1, %s, %s, %s)
+        VALUES (%s, %s 1, %s, %s, %s)
         RETURNING id;
     """
     tournament_id = db.fetch_one(query, (
         competition_id,
+        season_id,
         participant_limit,
         entry_price,
         public
@@ -116,18 +129,19 @@ def fetch_matches(tournament_id):
     db = Database()
 
     query = """
-        SELECT m.id,
+        SELECT 
+            m.id,
             m.date,
             th.name AS home_team_name,
             ta.name AS away_team_name,
             m.home_goals,
             m.away_goals
-        FROM match_ as m
-        JOIN team as th ON m.home_team_id = th.id
-        JOIN team as ta ON m.away_team_id = ta.id
-        JOIN tournament as t ON t.competition_id = m.competition_id
-        WHERE t.id = %s 
-        ORDER BY m.date ASC
+        FROM tournament t
+        JOIN match_ m ON m.season_id = t.season_id
+        JOIN team th ON m.home_team_id = th.id
+        JOIN team ta ON m.away_team_id = ta.id
+        WHERE t.id = %s
+        ORDER BY m.date ASC;
     """
 
     return db.fetch_all(query, (tournament_id,))
@@ -139,7 +153,7 @@ def fetch_scorers(tournament_id):
         SELECT p.name, g.goals
         FROM goalscorers as g
         INNER JOIN player as p ON p.id = g.player_id
-        JOIN tournament as t ON t.competition_id = g.competition_id
+        JOIN tournament as t ON t.season_id = g.season_id
         WHERE t.id = %s 
         ORDER BY g.goals DESC
     """

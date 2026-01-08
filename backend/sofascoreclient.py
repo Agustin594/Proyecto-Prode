@@ -312,7 +312,7 @@ class Sofascore:
         return data['results']
     
     # -------------------------- Arreglar 
-    def get_top_scorers(self, competition_id: int, season_id: int) -> list:
+    def get_top_scorers2(self, competition_id: int, season_id: int) -> list:
         """
         Creates a zip list with (player id, goals) and sort the list based on goals in descending order, getting the top scorers.
         
@@ -321,7 +321,7 @@ class Sofascore:
         :param season_id: Season ID
         :type season_id: int
         :return: Returns a list of the league scorers
-        :rtype: dict
+        :rtype: list
         """
         player_goals = self.get_player_data(competition_id, season_id)
         
@@ -337,6 +337,27 @@ class Sofascore:
         top_scorer = sorted(top_scorer, key=lambda x: x[1], reverse=True) # Lista de goleadores de más goles a menos
 
         return top_scorer
+    
+    def get_top_scorers(self, competition_id: int, season_id: int) -> list:
+        player_stats = self.get_player_data(competition_id, season_id)
+
+        scorers = []
+
+        for stat in player_stats:
+            goals = stat.get("goals")
+
+            if goals is None:
+                continue
+
+            goals = int(goals)
+
+            if goals > 0:
+                scorers.append(
+                    (stat["player"]["id"], goals)
+                )
+
+        scorers.sort(key=lambda x: x[1], reverse=True)
+        return scorers
     
     def get_max_scorers(self, top_scorer:list) -> list:
         """

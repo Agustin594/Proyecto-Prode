@@ -28,6 +28,12 @@ def upsert_competition(db, competition):
             champion_id = EXCLUDED.champion_id
     """, competition)
 
+def get_internal_team_id(db, team_id: int, internal_season_id: int) -> int:
+    return db.fetch_one("SELECT id FROM team WHERE external_id = %s AND season_id = %s",(team_id,internal_season_id))[0]
+
+def get_internal_player_id(db, player_id: int,):
+    return db.fetch_one("SELECT id FROM team WHERE external_id = %s",(player_id,))[0]
+
 def sync_competitions(db, competition_id):
     client = Sofascore()
 
@@ -48,8 +54,8 @@ def sync_competitions(db, competition_id):
 
     #now = "tiempo actual" ###############################################################
     #if now > map_competition["end_date"]:
-    #    update_tournament_data(db, competition_id)
-    #    evaluate_general_predictions(db, competition_id, map_competition["champion_id"], map_competition["top_scorer_id"])
+    #    update_tournament_data(db, internal_season_id)
+    #    evaluate_general_predictions(db, internal_season_id, get_internal_team_id(db, map_competition["champion_id"], internal_season_id), get_internal_player_id(map_competition["top_scorer_id"]))
 
 
 def calculate_points(real_champion, real_top_scorer, pred_champion, pred_top_scorer):
@@ -63,12 +69,12 @@ def calculate_points(real_champion, real_top_scorer, pred_champion, pred_top_sco
 
     return points
 
-def evaluate_general_predictions(db, competition_id, real_champion, real_goalscorer):
+def evaluate_general_predictions(db, season_id, real_champion, real_goalscorer):
     tournaments = db.fetch_all("""
         SELECT id
         FROM tournament
-        WHERE competition_id = %s
-    """, (competition_id,))
+        WHERE season_id = %s
+    """, (season_id,))
     
     for tournament in tournaments:
         preds = db.fetch_all("""
@@ -98,9 +104,9 @@ def evaluate_general_predictions(db, competition_id, real_champion, real_goalsco
             DO UPDATE SET points = score.points + EXCLUDED.points
         """, (p["user_id"], p["tournament_id"], points))
 
-def update_tournament_data(db, competition_id):
+def update_tournament_data(db, internal_season_id):
     db.execute("""
             UPDATE tournament
             SET open = FALSE
-            WHERE competition_id = %s
-        """, (competition_id))
+            WHERE season_id = %s
+        """, (internal_season_id,))
