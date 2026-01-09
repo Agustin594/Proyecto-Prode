@@ -25,7 +25,7 @@ def root():
     return {"status": "ok"}
 
 @app.post("/tournament")
-def crear_torneo(data: TournamentCreate, user_id:int = Depends(get_current_user_id)):
+def crear_tournament(data: TournamentCreate, user_id:int = Depends(get_current_user_id)):
     tournament_id = ts.create_tournament(user_id, data)
     return {"tournament_id": tournament_id}
 

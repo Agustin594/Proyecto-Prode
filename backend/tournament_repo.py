@@ -30,7 +30,7 @@ def get_season(db, competition_id):
 
     return db.fetch_one(query, (competition_id,))[0]
 
-def insert(user_id, competition_id, participant_limit, entry_price, public):
+def insert(user_id, competition_id, participant_limit, entry_price, public, password):
     db = Database()
     
     season_id = get_season(db, competition_id)
@@ -42,9 +42,10 @@ def insert(user_id, competition_id, participant_limit, entry_price, public):
             registered_participants,
             participant_limit,
             entry_price,
-            public
+            public,
+            password
         )
-        VALUES (%s, %s, 1, %s, %s, %s)
+        VALUES (%s, %s, 1, %s, %s, %s, %s)
         RETURNING id;
     """
     tournament_id = db.fetch_one(query, (
@@ -52,7 +53,8 @@ def insert(user_id, competition_id, participant_limit, entry_price, public):
         season_id,
         participant_limit,
         entry_price,
-        public
+        public,
+        password
     ))[0]
 
     registration(db, user_id, tournament_id)
@@ -63,7 +65,7 @@ def fetch_all():
     db = Database()
     
     query = """
-        SELECT t.id, c.name, t.open, t.registered_participants, t.participant_limit, t.entry_price, t.public
+        SELECT t.id, c.name, t.open, t.registered_participants, t.participant_limit, t.entry_price, t.public, t.password
         FROM tournament as t INNER JOIN competition as c ON t.competition_id = c.id
     """
     return db.fetch_all(query)
@@ -87,7 +89,8 @@ def fetch_by_user_id(user_id):
                t.registered_participants,
                t.participant_limit,
                t.entry_price,
-               t.public
+               t.public,
+               t.password
         FROM registration r
         INNER JOIN tournament t ON r.tournament_id = t.id
         INNER JOIN competition c ON t.competition_id = c.id
@@ -106,7 +109,8 @@ def fetch_by_id(tournament_id):
                t.registered_participants,
                t.participant_limit,
                t.entry_price,
-               t.public
+               t.public,
+               t.password
         FROM tournament as t
         INNER JOIN competition as c ON c.id = t.competition_id
         WHERE t.id = %s

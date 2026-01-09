@@ -5,3 +5,10 @@
 .tournament-card:hover {
     background-color: lightgray;
 }
+
+.locked {
+    background-color: #eee;
+    padding: 2px;
+    outline: none;
+    border: none;
+}

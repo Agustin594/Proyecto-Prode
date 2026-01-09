@@ -13,18 +13,26 @@
 
         <form id="tournamentForm">
             <label for="competitionIdSelect">Competition</label>
-            <select name="competition" id="competitionIdSelect">
+            <select name="competition" id="competitionIdSelect" required>
                 <option value="" disabled selected>Select competition</option>
             </select>
 
             <label for="participants">Participant Limit</label>
-            <input type="number" id="participants">
+            <input type="number" id="participants" min=2 required>
 
             <label for="price">Entry Price</label>
-            <input type="number" id="price">
+            <input type="number" id="price" min=0 step=10 required>
 
             <label for="public">Public</label>
-            <input type="checkbox" id="public">
+            <input type="radio" id="public" name="privacity" value="public" checked required>
+
+            <label for="private">Private</label>
+            <input type="radio" id="private" name="privacity" value="private" required>
+
+            <div hidden id="password-input">
+                <label for="tournament-password">Password</label>
+                <input type="password" id="tournament-password">
+            </div>
 
             <button type="submit">Create</button>
         </form>
@@ -45,9 +53,7 @@
         <div id="prediction-container" hidden>
             <form action="" id="predictionForm">
                 <label for="championIdSelect">Champion</label>
-                <select name="champion" id="championIdSelect">
-                    <!--<option value="" disabled selected>Select champion</option>-->
-                </select>
+                <select name="champion" id="championIdSelect" required></select>
 
                 <button type="submit">Create Prediction</button>
             </form>

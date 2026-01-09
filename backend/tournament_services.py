@@ -1,10 +1,16 @@
 import tournament_repo as tr
+import security 
 
 def create_tournament(user_id, data):
 
     ###### VALIDAR CREACIÓN
 
-    return tr.insert(user_id, data.competition_id, data.participant_limit, data.entry_price, data.public)
+    if(data.public):
+        password = None
+    else:
+        password = security.hash_password(data.password)
+
+    return tr.insert(user_id, data.competition_id, data.participant_limit, data.entry_price, data.public, password)
 
 def get_competitions():
     rows = tr.fetch_competitions()
@@ -30,7 +36,8 @@ def get_tournaments():
             "registered_participants": r[3],
             "participant_limit": r[4],
             "entry_price": r[5],
-            "public": r[6]
+            "public": r[6],
+            "password": r[7]
         })
 
     return tournaments
@@ -58,7 +65,8 @@ def get_tournaments_by_user_id(user_id):
             "registered_participants": r[3],
             "participant_limit": r[4],
             "entry_price": r[5],
-            "public": r[6]
+            "public": r[6],
+            "password": r[7]
         })
 
     return tournaments
@@ -83,7 +91,8 @@ def get_tournament_by_id(tournament_id):
         "registered_participants": t[3],
         "participant_limit": t[4],
         "entry_price": t[5],
-        "public": t[6]
+        "public": t[6],
+        "password": t[7]
     }
 
 def get_tournament_standings(tournament_id):

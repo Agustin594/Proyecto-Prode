@@ -5,6 +5,7 @@ class TournamentCreate(BaseModel):
     participant_limit: int
     entry_price: int
     public: bool
+    password: str
 
 class TournamentRegister(BaseModel):
     tournament_id: int

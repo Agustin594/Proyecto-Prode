@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () =>
         initSelect();
         showTournamentList();
         setupTournamentFormHandler();
+        setupPasswordInput();
         loadTournaments();
         loadOwnTournaments();
         setupTournamentData();
@@ -95,8 +96,28 @@ function getFormData() {
         competition_id: document.getElementById('competitionIdSelect').value,
         participant_limit: parseInt(document.getElementById('participants').value.trim(), 10),
         entry_price: parseInt(document.getElementById('price').value.trim(), 10),
-        public: document.getElementById('public').checked
+        public: document.getElementById('public').checked,
+        password: document.getElementById('tournament-password').value.trim()
         };
+}
+
+function setupPasswordInput() {
+    const radios = document.querySelectorAll('input[name="privacity"]');
+    const passwordDiv = document.getElementById('password-input');
+    const passwordInput = document.getElementById('tournament-password');
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'private' && radio.checked) {
+                passwordDiv.hidden = false;
+                passwordInput.required = true;
+            } else if (radio.value === 'public' && radio.checked) {
+                passwordDiv.hidden = true;
+                passwordInput.required = false;
+                passwordInput.value = '';
+            }
+        });
+    });
 }
 
 async function loadTournaments() 
@@ -136,7 +157,7 @@ function renderTournamentList(tournaments, id, type)
 
     if(tournaments.length === 0){
         const p = document.createElement("p");
-        p.textContent = "No hay torneos disponibles.";
+        p.textContent = "There are no tournaments available.";
         list.appendChild(p);
     } else {
         tournaments.forEach(t => 
@@ -156,9 +177,13 @@ function renderTournamentList(tournaments, id, type)
             div.appendChild(p);
 
             if(type == "register") {
-                registerButton(div, t.id);
+                if(t.registered_participants < t.participant_limit && t.open){
+                    registerButton(div, t);
+                }
             } else if(type == "delete") {
-                deleteButton(div, t.id);
+                if(t.open){
+                    deleteButton(div, t.id);
+                }
             }
 
             list.appendChild(div);
@@ -166,11 +191,15 @@ function renderTournamentList(tournaments, id, type)
     }
 }
 
-function registerButton(container, tournament_id) {
+function registerButton(container, tournament) {
     const btn = document.createElement("button");
     btn.dataset.type = "register";
     btn.textContent = "Register";
-    btn.dataset.tournamentId = tournament_id;
+    btn.dataset.tournamentId = tournament.id;
+    if(tournament.password == null)
+        btn.dataset.hasPassword = "false"
+    else
+        btn.dataset.hasPassword = "true";
     container.appendChild(btn);
 }
 
@@ -335,13 +364,15 @@ function renderMatchTable(matches)
         
         tr.appendChild(createCell(m.away_team_name));
 
-        tr.appendChild(createPredictCell(m.id));
+        tr.appendChild(createPredictCell(m));
 
         tbody.appendChild(tr);
     });
 }
 
 function createInputCells(container, match) {
+    const matchStart = new Date(match.date);
+    const now = new Date();
     const homeTd = document.createElement('td');
     const awayTd = document.createElement('td');
     const homeInput = document.createElement('input');
@@ -356,18 +387,30 @@ function createInputCells(container, match) {
         homeInput.value = match.prediction.home_goals;
         awayInput.value = match.prediction.away_goals;
     }
+    if (now >= matchStart) {
+        homeInput.disabled = true;
+        awayInput.disabled = true;
+        homeInput.classList.add("locked");
+        awayInput.classList.add("locked");
+    }
     homeTd.appendChild(homeInput);
     awayTd.appendChild(awayInput);
     container.appendChild(homeTd);
     container.appendChild(awayTd);
 }
 
-function createPredictCell(id) {
+function createPredictCell(match) {
+    const matchStart = new Date(match.date);
+    const now = new Date();
     const td = document.createElement("td");
     const btn = document.createElement("button");
     btn.dataset.type = "predict";
     btn.textContent = "Predict";
-    btn.dataset.matchId = id;
+    btn.dataset.matchId = match.id;
+    if (now >= matchStart) {
+        btn.disabled = true;
+        btn.hidden = true;
+    }
     td.appendChild(btn);
     return td;
 }
