@@ -12,4 +12,7 @@ class TournamentRegister(BaseModel):
 class SpecialPrediction(BaseModel):
     tournament_id: int
     champion_id: int
-    top_scorer_id: int
+
+class MatchPrediction(BaseModel):
+    home_goals: int
+    away_goals: int

@@ -28,6 +28,9 @@ def upsert_competition(db, competition):
             champion_id = EXCLUDED.champion_id
     """, competition)
 
+def get_internal_season_id(db, season_id):
+    return db.fetch_one("SELECT id FROM season WHERE external_id = %s",(season_id,))[0]
+
 def get_internal_team_id(db, team_id: int, internal_season_id: int) -> int:
     return db.fetch_one("SELECT id FROM team WHERE external_id = %s AND season_id = %s",(team_id,internal_season_id))[0]
 
@@ -48,7 +51,10 @@ def sync_competitions(db, competition_id):
     else:
         champion_id = None
 
-    map_competition = normalize_competition(info, curret_season, champion_id)
+    if(champion_id != None):
+        internal_champion_id = get_internal_team_id(db, champion_id, get_internal_season_id(db, curret_season["id"]))
+
+    map_competition = normalize_competition(info, curret_season, internal_champion_id)
 
     upsert_competition(db, map_competition)   
 

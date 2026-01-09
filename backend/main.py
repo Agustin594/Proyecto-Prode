@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends
-from schemas import TournamentCreate, TournamentRegister, SpecialPrediction
+from schemas import TournamentCreate, TournamentRegister, SpecialPrediction, MatchPrediction
 import tournament_services as ts
 from fastapi.middleware.cors import CORSMiddleware
 from auth import router
@@ -50,8 +50,8 @@ def get_tournament_standings(tournament_id: int):
     return ts.get_tournament_standings(tournament_id)
 
 @app.get("/tournament/{tournament_id}/matches")
-def get_tournament_matches(tournament_id: int):
-    return ts.get_tournament_matches(tournament_id)
+def get_tournament_matches(tournament_id: int, user_id:int = Depends(get_current_user_id)):
+    return ts.get_tournament_matches(tournament_id, user_id)
 
 @app.get("/tournament/{tournament_id}/scorers")
 def get_tournament_scorers(tournament_id: int):
@@ -61,9 +61,21 @@ def get_tournament_scorers(tournament_id: int):
 def get_inscription(tournament_id: int, user_id:int = Depends(get_current_user_id)):
     return ts.get_inscription(tournament_id, user_id)
 
+@app.get("/tournament/{tournament_id}/teams")
+def get_teams(tournament_id: int):
+    return ts.get_teams(tournament_id)
+
+@app.get("/tournament/{tournament_id}/prediction")
+def get_special_prediction(tournament_id: int, user_id:int = Depends(get_current_user_id)):
+    return ts.get_champion_id_prediction(tournament_id, user_id)
+
 @app.put("/tournament/{tournament_id}/prediction")
 def upadate_special_prediction(data: SpecialPrediction, user_id:int = Depends(get_current_user_id)):
     return ts.update_special_prediction(data, user_id)
+
+@app.put("/tournament/{tournament_id}/match/{match_id}/prediction")
+def upadate_match_prediction(tournament_id: int, match_id: int, data: MatchPrediction, user_id:int = Depends(get_current_user_id)):
+    return ts.update_match_prediction(tournament_id, match_id, data, user_id)
 
 @app.post("/tournament/register")
 def inscription(data: TournamentRegister, user_id:int = Depends(get_current_user_id)):

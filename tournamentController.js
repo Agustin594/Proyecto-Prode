@@ -32,10 +32,10 @@ async function initTournament(tournamentId) {
 
     if (registered) {
         loadSpecialPredictionForm(tournamentId);
-        //setupSpecialPredictionForm(tournamentId);
+        setupSpecialPredictionForm(tournamentId);
         setupAbandonButton(tournamentId);
         loadTournamentMatchTable(tournamentId);
-        loadTournamentGoalscorerTable(tournamentId);
+        setupMatchPrediction(tournamentId);
     } else {
         document.getElementById("matches").hidden = true;
         document.getElementById("scorers").hidden = true;
@@ -298,7 +298,6 @@ async function loadTournamentMatchTable(tournamentId) {
     try 
     {
         const matches = await tournamentAPI.fetchByPath(`${tournamentId}/matches`);
-        
         renderMatchTable(matches);
     } 
     catch (err) 
@@ -319,12 +318,83 @@ function renderMatchTable(matches)
 
         tr.appendChild(createCell(m.date));
         tr.appendChild(createCell(m.home_team_name));
-        tr.appendChild(createCell(m.home_goals));
-        tr.appendChild(createCell(m.away_goals));
+        
+        if(m.status === "finished"){
+            tr.appendChild(createCell(m.home_goals));
+        } else {
+            tr.appendChild(createCell(""));
+        }
+
+        createInputCells(tr, m)
+
+        if(m.status === "finished"){
+            tr.appendChild(createCell(m.away_goals));
+        } else {
+            tr.appendChild(createCell(""));
+        }
+        
         tr.appendChild(createCell(m.away_team_name));
+
+        tr.appendChild(createPredictCell(m.id));
 
         tbody.appendChild(tr);
     });
+}
+
+function createInputCells(container, match) {
+    const homeTd = document.createElement('td');
+    const awayTd = document.createElement('td');
+    const homeInput = document.createElement('input');
+    const awayInput = document.createElement('input');
+    homeInput.type = "number";
+    homeInput.min = 0;
+    homeInput.id = `home-input-match-${match.id}`;
+    awayInput.type = "number";
+    awayInput.min = 0;
+    awayInput.id = `away-input-match-${match.id}`;
+    if(match.prediction) {
+        homeInput.value = match.prediction.home_goals;
+        awayInput.value = match.prediction.away_goals;
+    }
+    homeTd.appendChild(homeInput);
+    awayTd.appendChild(awayInput);
+    container.appendChild(homeTd);
+    container.appendChild(awayTd);
+}
+
+function createPredictCell(id) {
+    const td = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.dataset.type = "predict";
+    btn.textContent = "Predict";
+    btn.dataset.matchId = id;
+    td.appendChild(btn);
+    return td;
+}
+
+function setupMatchPrediction(tournamentId){
+    document.addEventListener("click", async (e) => {
+        if(e.target.dataset.type === "predict") {
+            const matchId = e.target.dataset.matchId;
+
+            const prediction = getMatchPrediction(matchId);
+
+            try { 
+                await tournamentAPI.updateWithPath(`${tournamentId}/match/${matchId}/prediction`, prediction);
+            }
+            catch (err) {
+                console.log("ERROR: ", err);
+                alert("It couldn't register you into the tournament.");
+            }
+        }
+    })
+}
+
+function getMatchPrediction(matchId){
+    return {
+        home_goals: parseInt(document.getElementById(`home-input-match-${matchId}`).value.trim(), 10),
+        away_goals: parseInt(document.getElementById(`away-input-match-${matchId}`).value.trim(), 10)
+        };
 }
 
 async function loadTournamentGoalscorerTable(tournamentId) {
@@ -359,14 +429,48 @@ function renderScorerTable(scorers)
 
 async function isRegistered(tournamentId){
     const register = await tournamentAPI.fetchByPath(`${tournamentId}/inscription`);
-    console.log(register);
     return register.length === 1;
 }
 
 function loadSpecialPredictionForm(tournamentId){
     document.getElementById("prediction-container").hidden = false;
-    //initTeamSelect();
-    //initPlayerSelect();
+    initTeamSelect(tournamentId);
+}
+
+async function initTeamSelect(tournamentId) 
+{
+    try 
+    {
+        const teams = await tournamentAPI.fetchByPath(`${tournamentId}/teams`);
+        const team_prediction = await tournamentAPI.fetchByPath(`${tournamentId}/prediction`);
+        const championSelect = document.getElementById('championIdSelect');
+
+        if(!team_prediction.champion_id){
+            const option = document.createElement('option');
+            option.textContent = "Select champion";
+            option.disabled = true;
+            option.selected = true;
+            championSelect.appendChild(option);
+        }
+
+        teams.forEach(t => 
+        {
+            const option = document.createElement('option');
+            option.value = t.id;
+            option.textContent = t.name;
+
+            if(t.id === team_prediction.champion_id){
+                option.selected = true;
+                option.disabled = true;
+            }
+
+            championSelect.appendChild(option);
+        });
+    } 
+    catch (err) 
+    {
+        console.error('Error cargando equipos:', err.message);
+    }
 }
 
 function setupSpecialPredictionForm(tournamentId) {
@@ -381,9 +485,7 @@ function setupSpecialPredictionForm(tournamentId) {
         try 
         { 
             await tournamentAPI.updateWithPath(`${tournamentId}/prediction`, prediction);
-            form.reset();
-            loadTournaments();
-            loadOwnTournaments();
+            initTeamSelect(tournamentId);
         }
         catch (err)
         {
@@ -396,8 +498,7 @@ function setupSpecialPredictionForm(tournamentId) {
 function getPredictionFormData(tournamentId) {
     return {
         tournament_id: tournamentId,
-        champion_id: document.getElementById('championIdSelect').value,
-        top_scorer_id: document.getElementById('goalscorerIdSelect').value
+        champion_id: document.getElementById('championIdSelect').value
         };
 }
 

@@ -21,12 +21,14 @@ def registration(db, user_id, tournament_id):
 
 def get_season(db, competition_id):
     query = """
-        SELECT MAX(season_id)
+        SELECT id
         FROM season
         WHERE competition_id = %s
+        ORDER BY external_id DESC
+        LIMIT 1
     """
 
-    return db.fetch_one(query, (competition_id,))[0] ########
+    return db.fetch_one(query, (competition_id,))[0]
 
 def insert(user_id, competition_id, participant_limit, entry_price, public):
     db = Database()
@@ -42,7 +44,7 @@ def insert(user_id, competition_id, participant_limit, entry_price, public):
             entry_price,
             public
         )
-        VALUES (%s, %s 1, %s, %s, %s)
+        VALUES (%s, %s, 1, %s, %s, %s)
         RETURNING id;
     """
     tournament_id = db.fetch_one(query, (
@@ -125,7 +127,7 @@ def fetch_standings(tournament_id):
 
     return db.fetch_all(query, (tournament_id,))
 
-def fetch_matches(tournament_id):
+def fetch_matches(tournament_id, user_id):
     db = Database()
 
     query = """
@@ -135,16 +137,26 @@ def fetch_matches(tournament_id):
             th.name AS home_team_name,
             ta.name AS away_team_name,
             m.home_goals,
-            m.away_goals
+            m.away_goals,
+            m.status,
+            p.home_goals AS predicted_home_goals,
+            p.away_goals AS predicted_away_goals
         FROM tournament t
-        JOIN match_ m ON m.season_id = t.season_id
-        JOIN team th ON m.home_team_id = th.id
-        JOIN team ta ON m.away_team_id = ta.id
+        JOIN match_ m 
+            ON m.season_id = t.season_id
+        JOIN team th 
+            ON m.home_team_id = th.id
+        JOIN team ta 
+            ON m.away_team_id = ta.id
+        LEFT JOIN match_prediction p 
+            ON p.match_id = m.id
+        AND p.tournament_id = t.id
+        AND p.user_id = %s
         WHERE t.id = %s
         ORDER BY m.date ASC;
     """
 
-    return db.fetch_all(query, (tournament_id,))
+    return db.fetch_all(query, (user_id, tournament_id))
 
 def fetch_scorers(tournament_id):
     db = Database()
@@ -156,6 +168,19 @@ def fetch_scorers(tournament_id):
         JOIN tournament as t ON t.season_id = g.season_id
         WHERE t.id = %s 
         ORDER BY g.goals DESC
+    """
+
+    return db.fetch_all(query, (tournament_id,))
+
+def fetch_teams(tournament_id):
+    db = Database()
+
+    query = """
+        SELECT te.id, te.name
+        FROM team as te
+        INNER JOIN tournament as t ON te.season_id = t.season_id
+        WHERE t.id = %s
+        ORDER BY te.name
     """
 
     return db.fetch_all(query, (tournament_id,))
@@ -224,8 +249,40 @@ def update_special_prediction(data, user_id):
 
     query = """
         UPDATE special_prediction 
-        SET champion_id = %s, top_scorer_id = %s
-        WHERE tournament_id = %s AND user_id %s 
+        SET champion_id = %s
+        WHERE tournament_id = %s AND user_id = %s 
     """
 
-    db.execute(query, (data.champion_id, data.top_scorer_id, data.tournament_id, user_id))
+    db.execute(query, (data.champion_id, data.tournament_id, user_id))
+
+def upsert_match_prediction(tournament_id, match_id, data, user_id):
+    db = Database()
+
+    ############ FALTA QUALIFIED TEAM ID
+    query = """
+        INSERT INTO match_prediction (
+            user_id,
+            tournament_id,
+            match_id,
+            home_goals,
+            away_goals
+        )
+        VALUES (%s, %s, %s, %s, %s)
+        ON CONFLICT (user_id, tournament_id, match_id)
+        DO UPDATE SET
+            home_goals = EXCLUDED.home_goals,
+            away_goals = EXCLUDED.away_goals
+    """
+
+    db.execute(query, (user_id, tournament_id, match_id, data.home_goals, data.away_goals))
+
+def get_champion_id_prediction(tournament_id, user_id):
+    db = Database()
+
+    query = """
+        SELECT champion_id
+        FROM special_prediction
+        WHERE tournament_id = %s AND user_id = %s
+    """
+
+    return db.fetch_one(query,(tournament_id,user_id))[0]

@@ -98,8 +98,8 @@ def get_tournament_standings(tournament_id):
 
     return standings
 
-def get_tournament_matches(tournament_id):
-    rows = tr.fetch_matches(tournament_id)
+def get_tournament_matches(tournament_id, user_id):
+    rows = tr.fetch_matches(tournament_id, user_id)
 
     matches = []
     for r in rows:
@@ -109,7 +109,12 @@ def get_tournament_matches(tournament_id):
             "home_team_name": r[2],
             "away_team_name": r[3],
             "home_goals": r[4],
-            "away_goals": r[5]
+            "away_goals": r[5],
+            "status": r[6],
+            "prediction": {
+                "home_goals": r[7],
+                "away_goals": r[8]
+            } if r[7] is not None else None
         })
 
     return matches
@@ -129,4 +134,25 @@ def get_tournament_scorers(tournament_id):
 
 def update_special_prediction(data, user_id):
     ###### VALIDACIONES
-    tr.update_special_prediction(data, user_id)
+    return tr.update_special_prediction(data, user_id)
+
+def update_match_prediction(tournament_id, match_id, data, user_id):
+    ###### VALIDACIONES
+    return tr.upsert_match_prediction(tournament_id, match_id, data, user_id)
+
+def get_teams(tournament_id):
+    rows = tr.fetch_teams(tournament_id)
+
+    teams = []
+    for r in rows:
+        teams.append({
+            "id": r[0],
+            "name": r[1]
+        })
+
+    return teams
+
+def get_champion_id_prediction(tournament_id, user_id):
+    return {
+        "champion_id": tr.get_champion_id_prediction(tournament_id, user_id)
+    }
