@@ -11,15 +11,29 @@ function setupLoginFormHandler()
   form.addEventListener('submit', async e => 
   {
         e.preventDefault();
-        const log = getFormData();
+        clearPasswordError(form);
+        const register = getFormData();
 
-        // Validaciones
+        if(!register.mail || !register.password){
+            createErrorMessage("loginForm", "All fields must be filled in.");
+            return;
+        }
 
+        if(!isValidEmail(register.mail)){
+            createErrorMessage("loginForm", "Invalid credentials.");
+            return;
+        }
+
+        /*
+        if(!isValidPassword(register.password)){
+            createErrorMessage("loginForm", "Invalid credentials.");
+            return;
+        }
+        */
+        
         try 
-        { 
-            console.log(log);
-            const result = await loginAPI.create(log);
-            console.log(result);
+        {
+            const result = await loginAPI.create(register);
             form.reset();
             
             // Guardar token
@@ -35,6 +49,29 @@ function setupLoginFormHandler()
             alert("It couldn't login the user.");
         }
   });
+}
+
+function isValidEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function isValidPassword(password) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    return regex.test(password);
+}
+
+function createErrorMessage(containerId, message) {
+    const container = document.getElementById(containerId);
+    const p = document.createElement("p");
+    p.classList.add("error-message");
+    p.textContent = message;
+    container.appendChild(p);
+}
+
+function clearPasswordError(container) {
+    const error = container.querySelector(".error-message");
+    if (error) error.remove();
 }
 
 function getFormData() {

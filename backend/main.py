@@ -30,8 +30,8 @@ def crear_tournament(data: TournamentCreate, user_id:int = Depends(get_current_u
     return {"tournament_id": tournament_id}
 
 @app.get("/tournament")
-def get_tournaments():
-    return ts.get_tournaments()
+def get_tournaments(user_id:int = Depends(get_current_user_id)):
+    return ts.get_tournaments(user_id)
 
 @app.get("/tournament/my")
 def get_tournaments_by_user_id(user_id:int = Depends(get_current_user_id)):

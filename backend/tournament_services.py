@@ -1,5 +1,7 @@
 import tournament_repo as tr
-import security 
+import security
+from database import Database
+from fastapi import HTTPException
 
 def create_tournament(user_id, data):
 
@@ -24,8 +26,8 @@ def get_competitions():
 
     return competitions
 
-def get_tournaments():
-    rows = tr.fetch_all()
+def get_tournaments(user_id):
+    rows = tr.fetch_all(user_id)
 
     tournaments = []
     for r in rows:
@@ -73,6 +75,20 @@ def get_tournaments_by_user_id(user_id):
 
 def tournament_inscription(user_id, data):
     ##### VALIDAR
+
+    db = Database()
+
+    result = db.fetch_one(
+        "SELECT public, password FROM tournament WHERE id = %s",
+        (data.tournament_id,)
+    )
+
+    if not result:
+        raise HTTPException(status_code=401, detail="Torneo inexistente.")
+
+    if not result[0] and not security.verify_password(data.password, result[1]):
+        raise HTTPException(status_code=401, detail="Contraseña inválida.")
+
     tr.inscription(user_id, data.tournament_id)
 
 def delete_tournament_user(user_id, data):

@@ -11,15 +11,35 @@ function setupRegistrationFormHandler()
   form.addEventListener('submit', async e => 
   {
         e.preventDefault();
+        clearPasswordError(form);
+
         const register = getFormData();
 
-        // Validaciones
+        if(!register.name || !register.mail || !register.password){
+            createErrorMessage("registrationForm", "All fields must be filled in.");
+            return;
+        }
+
+        if(register.name.length > 20){
+            createErrorMessage("container-user-name", "User name too long.");
+            return;
+        }
+
+        if(!isValidEmail(register.mail)){
+            createErrorMessage("container-mail", "Invalid email.");
+            return;
+        }
+
+        /*
+        if(!isValidPassword(register.password)){
+            createErrorMessage("container-password", "It must contain 8 characters and at least one lowercase letter, one uppercase letter, one number, and one special character..");
+            return;
+        }
+        */
 
         try 
         { 
-            console.log(register);
             const result = await registrationAPI.create(register);
-            console.log(result);
             form.reset();
             
             // Guardar token
@@ -35,6 +55,29 @@ function setupRegistrationFormHandler()
             alert("It couldn't create the user.");
         }
   });
+}
+
+function isValidEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function isValidPassword(password) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    return regex.test(password);
+}
+
+function createErrorMessage(containerId, message) {
+    const container = document.getElementById(containerId);
+    const p = document.createElement("p");
+    p.classList.add("error-message");
+    p.textContent = message;
+    container.appendChild(p);
+}
+
+function clearPasswordError(container) {
+    const error = container.querySelector(".error-message");
+    if (error) error.remove();
 }
 
 function getFormData() {

@@ -70,9 +70,28 @@ function setupTournamentFormHandler()
   form.addEventListener('submit', async e => 
   {
         e.preventDefault();
+        clearPasswordError(form);
         const tournament = getFormData();
 
-        // Validaciones
+        if(!tournament.competition_id || !tournament.participant_limit || !tournament.entry_price || (!tournament.password && !tournament.public)){
+            createErrorMessage("tournamentForm", "All fields must be filled in.");
+            return;
+        }
+
+        if(tournament.competition_id <= 0) {
+            createErrorMessage("container-competition-id", "Invalid competition.");
+            return;
+        }
+
+        if(tournament.participant_limit < 5) {
+            createErrorMessage("container-participant-limit", "Invalid participant limit, the minimun limit is 5 participants.");
+            return;
+        }
+
+        if(tournament.entry_price < 0) {
+            createErrorMessage("container-entry-price", "The price cannot be negative.");
+            return;
+        }
 
         try 
         { 
@@ -89,6 +108,19 @@ function setupTournamentFormHandler()
             alert("It couldn't create the tournament.");
         }
   });
+}
+
+function createErrorMessage(containerId, message) {
+    const container = document.getElementById(containerId);
+    const p = document.createElement("p");
+    p.classList.add("error-message");
+    p.textContent = message;
+    container.appendChild(p);
+}
+
+function clearPasswordError(container) {
+    const error = container.querySelector(".error-message");
+    if (error) error.remove();
 }
 
 function getFormData() {
@@ -193,6 +225,8 @@ function renderTournamentList(tournaments, id, type)
 
 function registerButton(container, tournament) {
     const btn = document.createElement("button");
+    btn.classList.add = "join";
+    btn.id = "registerBtn"
     btn.dataset.type = "register";
     btn.textContent = "Register";
     btn.dataset.tournamentId = tournament.id;
@@ -422,6 +456,14 @@ function setupMatchPrediction(tournamentId){
 
             const prediction = getMatchPrediction(matchId);
 
+            if(!prediction.home_goals || !prediction.away_goals){
+                return;
+            }
+
+            if(prediction.home_goals < 0 && prediction.away_goals < 0){
+                return;
+            }
+
             try { 
                 await tournamentAPI.updateWithPath(`${tournamentId}/match/${matchId}/prediction`, prediction);
             }
@@ -523,7 +565,13 @@ function setupSpecialPredictionForm(tournamentId) {
         e.preventDefault();
         const prediction = getPredictionFormData(tournamentId);
 
-        // Validaciones
+        if(!prediction.champion_id){
+            return;
+        }
+
+        if(prediction.champion_id <= 0){
+            return;
+        }
 
         try 
         { 

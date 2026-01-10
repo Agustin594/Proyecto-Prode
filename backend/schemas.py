@@ -9,6 +9,7 @@ class TournamentCreate(BaseModel):
 
 class TournamentRegister(BaseModel):
     tournament_id: int
+    password: str
 
 class SpecialPrediction(BaseModel):
     tournament_id: int

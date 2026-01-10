@@ -61,14 +61,28 @@ def insert(user_id, competition_id, participant_limit, entry_price, public, pass
 
     return tournament_id
 
-def fetch_all():
+def fetch_all(user_id):
     db = Database()
     
     query = """
-        SELECT t.id, c.name, t.open, t.registered_participants, t.participant_limit, t.entry_price, t.public, t.password
-        FROM tournament as t INNER JOIN competition as c ON t.competition_id = c.id
+        SELECT t.id,
+            c.name,
+            t.open,
+            t.registered_participants,
+            t.participant_limit,
+            t.entry_price,
+            t.public,
+            t.password
+        FROM tournament t
+        JOIN competition c ON t.competition_id = c.id
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM registration r
+            WHERE r.tournament_id = t.id
+            AND r.user_id = %s
+        )
     """
-    return db.fetch_all(query)
+    return db.fetch_all(query, (user_id,))
 
 def fetch_competitions():
     db = Database()
