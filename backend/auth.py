@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import security 
 from database import Database
+import re
 
 router = APIRouter()
 
@@ -13,6 +14,26 @@ class UserCreate(BaseModel):
 @router.post("/register")
 def register_user(user: UserCreate):
     db = Database()
+
+    result = db.fetch_one("""SELECT 1 FROM user_ WHERE name = %s""", (user.name,))
+
+    if result:
+        raise HTTPException(status_code=400, detail="The user name is already in use.")
+    
+    result = db.fetch_one("""SELECT 1 FROM user_ WHERE mail = %s""", (user.mail,))
+
+    if result:
+        raise HTTPException(status_code=400, detail="The email is already registered.")
+
+    errors = validate_password(user.password)
+
+    if errors:
+        return {
+            "success": False,
+            "errors": errors
+        }
+    
+    ####### VALIDAR MAIL (Mandar código de verificación de 24hs para terminar de registrar la cuenta, dicho email debe existir)
 
     password_hash = security.hash_password(user.password)
 
@@ -47,3 +68,23 @@ def login(user: UserLogin):
     token = security.create_access_token(result[0])
 
     return {"access_token": token, "token_type": "bearer"}
+
+def validate_password(password: str):
+    errors = []
+
+    if len(password) < 8:
+        errors.append("It must have at least 8 characters.")
+
+    if not re.search(r"[A-Z]", password):
+        errors.append("It must have an uppercase letter.")
+
+    if not re.search(r"[a-z]", password):
+        errors.append("It must have a lowercase letter.")
+
+    if not re.search(r"\d", password):
+        errors.append("It must have a number.")
+
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        errors.append("It must have a special character.")
+
+    return errors
