@@ -4,10 +4,32 @@ from database import Database
 from fastapi import HTTPException
 
 def create_tournament(user_id, data):
+    db = Database()
 
-    ###### VALIDAR CREACIÓN
+    result = db.fetch_one("""SELECT 1 FROM competition WHERE id = %s""", (data.competition_id))
 
-    if(data.public):
+    if not result:
+        raise HTTPException(status_code=400, detail="That competition does not exist.")
+    
+    if data.participant_limit < 5:
+        raise HTTPException(status_code=400, detail="Wrong limit to the participants.")
+    
+    if data.participant_limit > 10000:
+        raise HTTPException(status_code=400, detail="Participant limit too high.")
+    
+    if data.entry_price < 0:
+        raise HTTPException(status_code=400, detail="The entry price cannot be negative.")
+    
+    if data.entry_price > 1000000:
+        raise HTTPException(status_code=400, detail="Entry price too high.")
+    
+    if not data.public and (not data.password or data.password.strip() == ""):
+        raise HTTPException(status_code=400, detail="It needs a password.")
+    
+    if data.public and data.password:
+        raise HTTPException(status_code=400, detail="Public tournaments cannot have a password.")
+
+    if data.public:
         password = None
     else:
         password = security.hash_password(data.password)
@@ -74,8 +96,6 @@ def get_tournaments_by_user_id(user_id):
     return tournaments
 
 def tournament_inscription(user_id, data):
-    ##### VALIDAR
-
     db = Database()
 
     result = db.fetch_one(
@@ -92,7 +112,9 @@ def tournament_inscription(user_id, data):
     tr.inscription(user_id, data.tournament_id)
 
 def delete_tournament_user(user_id, data):
-    #### VALIDAR
+    if not isRegistered(user_id, data.tournament_id):
+        raise HTTPException(status_code=400, detail="The user is not in that tournament.")
+
     return tr.delete_user(user_id, data.tournament_id)
 
 def get_tournament_by_id(tournament_id):
@@ -158,11 +180,29 @@ def get_tournament_scorers(tournament_id):
     return scorers
 
 def update_special_prediction(data, user_id):
-    ###### VALIDACIONES
+    db= Database()
+
+    result = db.fetch_one("""SELECT 1 FROM team as te INNER JOIN tournament as t ON t.season_id = te.season_id WHERE te.id = %s AND t.id = %s""",(data.champion_id, data.tournament_id))
+
+    if not result:
+        raise HTTPException(status_code=400, detail="The team cannot be the champion of the competition.")
+    
+    if not isRegistered(user_id, data.tournament_id):
+        raise HTTPException(status_code=400, detail="The user is not in that tournament.")
+    
     return tr.update_special_prediction(data, user_id)
 
 def update_match_prediction(tournament_id, match_id, data, user_id):
-    ###### VALIDACIONES
+    db= Database()
+
+    result = db.fetch_one("""SELECT 1 FROM match_ as m INNER JOIN tournament as t ON t.season_id = m.season_id WHERE m.id = %s AND t.id = %s""",(match_id, tournament_id))
+
+    if not result:
+        raise HTTPException(status_code=400, detail="The match is not part of the tournament.")
+    
+    if data.home_goals < 0 or data.away_goals < 0:
+        raise HTTPException(status_code=400, detail="Goals cannot be negative.")
+
     return tr.upsert_match_prediction(tournament_id, match_id, data, user_id)
 
 def get_teams(tournament_id):
@@ -181,3 +221,10 @@ def get_champion_id_prediction(tournament_id, user_id):
     return {
         "champion_id": tr.get_champion_id_prediction(tournament_id, user_id)
     }
+
+def isRegistered(user_id, tournament_id):
+    db = Database()
+
+    result = db.fetch_one("""SELECT 1 FROM registration WHERE user_id = %s AND tournament_id = %s""",(user_id, tournament_id))
+
+    return result != None

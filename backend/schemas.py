@@ -11,6 +11,9 @@ class TournamentRegister(BaseModel):
     tournament_id: int
     password: str
 
+class TournamentDelete(BaseModel):
+    tournament_id: int
+
 class SpecialPrediction(BaseModel):
     tournament_id: int
     champion_id: int
