@@ -1,0 +1,124 @@
+:root {
+    --primary-color: rgb(70, 180, 231);
+    --secondary-color: white;
+}
+
+* {
+    font-family: "Figtree", sans-serif;
+    font-feature-settings: normal;
+    font-style: normal;
+    font-variation-settings: normal;
+}
+
+body {
+  top: 0;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  background-color: rgb(231, 227, 227);
+}
+
+.container-form {
+  background-color: var(--secondary-color);
+  padding: 50px 75px;
+  border-radius: 20px;
+}
+
+.container-form h2 {
+  font-size: 30px;
+  font-weight: 100;
+  color: rgb(61, 61, 61);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form div {
+  width: 100%;
+}
+
+.form div input {
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid rgb(128, 128, 128);
+  border-radius: 5px;
+}
+
+.form div:first-child input {
+  margin-top: 0;
+}
+
+.form div input:hover {
+  background-color: rgb(233, 233, 233);
+}
+
+.form div input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.form div input::placeholder {
+  color: rgb(128, 128, 128);
+}
+
+.form > button {
+  width: 50%;
+  padding: 10px;
+  color: var(--secondary-color);
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 5px;
+  font-size: 17px;
+  font-weight: 100;
+  margin-top: 20px;
+}
+
+.form > button:hover {
+  background-color: rgb(22, 138, 192);
+}
+
+.error-message {
+  color: red;
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+.redirect {
+  font-size: 14px;
+  color: rgb(61, 61, 61);
+}
+
+.redirect a {
+  color: rgb(61, 61, 61);
+}
+
+.redirect a:hover {
+  color: var(--primary-color);
+}
+
+.container-password {
+  position: relative;
+}
+
+.container-password i {
+    position: absolute;
+    right: -10px;
+    top: 66%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 17px;
+    color: rgb(61, 61, 61);
+}
+
+.container-password i:hover {
+  color: black;
+}

@@ -3,32 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="signLogStyles.css">
     <script src="https://kit.fontawesome.com/76efffbb11.js" crossorigin="anonymous"></script>
     <title>ProdeBET</title>
 </head>
 <body>
     <div class="container-form">
-        <h2>Login</h2>
+        <h2>Registration</h2>
 
         <div>
-            <form id="loginForm" class="form">
-                <div>
+            <form id="registrationForm" class="form">
+                <div id="container-user-name" class="container-input">
+                    <input type="text" id="user_name" placeholder="User name" required>
+                </div>
+
+                <div id="container-mail" class="container-input">
                     <input type="email" id="mail" placeholder="E-mail" required>
                 </div>
 
-                <div class="container-password">
+                <div id="container-password" class="container-input container-password">
                     <input type="password" id="user_password" placeholder="Password" required>
                     <i class="fa-regular fa-eye-slash" id="togglePassword"></i>
                 </div>
 
-                <button type="submit">Login</button>
+                <button type="submit">Register</button>
             </form>
-            <p class="redirect">Don't you have an account? <a href="register.html">Register</a></p>
+            <p class="redirect">Do you already have an account? <a href="login.html">Login</a></p>
         </div>
     </div>
 
-    <script type="module" src="loginController.js"></script>
+    <script type="module" src="registrationController.js"></script>
     <script src="passwordBtn.js"></script>
 </body>
 </html>

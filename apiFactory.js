@@ -25,7 +25,14 @@ export function createAPI(moduleName, config = {})
             body: JSON.stringify(data)
         });
 
-        if (!res.ok) throw new Error(`Error in ${method}`);
+        if (!res.ok) {
+            const data = await res.json();
+            throw {
+                status: res.status,
+                message: data.detail || "Error"
+            };
+        }
+
         return await res.json();
     }
 
@@ -35,28 +42,56 @@ export function createAPI(moduleName, config = {})
             const res = await fetch(API_URL, {
                 headers: getHeaders()
             });
-            if (!res.ok) throw new Error("No se pudieron obtener los datos");
+            if (!res.ok) {
+                const data = await res.json();
+                throw {
+                    status: res.status,
+                    message: data.detail || "Error"
+                };
+            }
+            
             return await res.json();
         },
         async fetchMine() {
             const res = await fetch(`${API_URL}/my`, {
                 headers: getHeaders()
             });
-            if (!res.ok) throw new Error("No se pudieron obtener los datos");
+            if (!res.ok) {
+                const data = await res.json();
+                throw {
+                    status: res.status,
+                    message: data.detail || "Error"
+                };
+            }
+            
             return await res.json();
         },
         async fetchById(id) {
             const res = await fetch(`${API_URL}/${id}`, {
                 headers: getHeaders()
             });
-            if (!res.ok) throw new Error("No se pudieron obtener los datos");
+            if (!res.ok) {
+                const data = await res.json();
+                throw {
+                    status: res.status,
+                    message: data.detail || "Error"
+                };
+            }
+            
             return await res.json();
         },
         async fetchByPath(path) {
             const res = await fetch(`${API_URL}/${path}`, {
                 headers: getHeaders()
             });
-            if (!res.ok) throw new Error("No se pudieron obtener los datos");
+            if (!res.ok) {
+                const data = await res.json();
+                throw {
+                    status: res.status,
+                    message: data.detail || "Error"
+                };
+            }
+            
             return await res.json();
         },
         async create(data)
@@ -77,8 +112,15 @@ export function createAPI(moduleName, config = {})
                 body: JSON.stringify(data)
             });
 
-        if (!res.ok) throw new Error(`Error in ${method}`);
-        return await res.json();
+            if (!res.ok) {
+                const data = await res.json();
+                throw {
+                    status: res.status,
+                    message: data.detail || "Error"
+                };
+            }
+            
+            return await res.json();
         },
         async remove(data)
         {

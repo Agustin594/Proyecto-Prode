@@ -3,34 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="registerStyles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="indexStyles.css">
+    <script src="https://kit.fontawesome.com/76efffbb11.js" crossorigin="anonymous"></script>
     <title>ProdeBET</title>
 </head>
 <body>
-    <h2>Registration</h2>
+    <header class="header">
+        <div class="container-logo">
+            <img src="" alt="Logo ProdeBET">
+        </div>
+        <div class="container-redirects">
+            <a href="register.html" class="register">Sign up</a>
+            <a href="login.html" class="login">Log in</a>
+        </div>
+    </header>
 
-    <div>
-        <form id="registrationForm">
-            <div id="container-user-name">
-                <label for="user_name">User Name</label>
-                <input type="text" id="user_name" required>
+    <section class="first-section">
+        <h1>Prove you know the most about football!</h1>
+        <p class="description">Create your own tournament, compete with friends and win amazing prizes.</p>
+        <p class="description">Active user: 5,000 Tournaments: 140</p>
+        <a href="register.html">Play now</a>
+        <p class="redirect">Do you already have an account? <a href="login.html">Login</a></p>
+    </section>
+
+    <section class="informative-section">
+        <div class="cards-viewport">
+            <div class="cards">
+                <div class="data-card shape-blob">
+                    <img src="image/trophy.svg" alt="Trophy">
+                    <h4>Create Tournaments</h4>
+                    <p>To play with your friends using the world's top competitions.</p>
+                </div>
+
+                <div class="data-card shape-circle">
+                    <img src="image/friends.svg" alt="Friends">
+                    <h4>Friends</h4>
+                    <p>Join your friends and predict the results of the matches.</p>
+                </div>
+
+                <div class="data-card shape-double">
+                    <img src="image/team-shield.svg" alt="Team Shield">
+                    <h4>Champion</h4>
+                    <p>In addition to predicting the matches, you will be able to predict the tournament champion.</p>
+                </div>
+
+                <div class="data-card shape-diagonal">
+                    <img src="image/calendar.svg" alt="Calendar">
+                    <h4>Calendar</h4>
+                    <p>So you can stay up to date on all the matches.</p>
+                </div>
+
+                <div class="data-card shape-blob">
+                    <img src="image/sand-clock.svg" alt="Clock">
+                    <h4>Predict</h4>
+                    <p>Do not forget to predict the matches up to 15 minutes before they start.</p>
+                </div>
+
+                <div class="data-card shape-circle">
+                    <img src="image/pencil.svg" alt="Pencil">
+                    <h4>Rules</h4>
+                    <p>Champion: 10 points.</p>
+                    <p>Correct result: 3 points.</p>
+                    <p>Winner of the match: 1 point.</p>
+                </div>
             </div>
+        </div>
 
-            <div id="container-mail">
-                <label for="mail">Mail</label>
-                <input type="email" id="mail" required>
-            </div>
+        <div class="drive-buttons">
+            <i class="fa-solid fa-chevron-left" id="prev"></i>
+            <i class="fa-solid fa-chevron-right" id="next"></i>
+        </div>
+    </section>
 
-            <div id="container-password">
-                <label for="user_password">Password</label>
-                <input type="password" id="user_password" required>
-            </div>
-
-            <button type="submit">Register</button>
-        </form>
-        <p>Already have an account? <a href="login.html">Login</a></p>
+    <div id="button-up">
+        <i class="fas fa-chevron-up"></i>
     </div>
+    <footer class="footer">
+        <div class="top-footer">
+            <img src="" alt="Logo ProdeBET">
+            <a href="#">Contact us</a>
+            <div class="container-policy">
+                <a href="#">Terms & Conditions</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Cookies Policy</a>
+            </div>
+        </div>
+        <div class="bottom-footer">
+            <div class="social-networks">
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-square-facebook"></i></a>
+                <a href="#"><i class="fa-brands fa-square-x-twitter"></i></a>
+            </div>
+            <p>© 2026 ProdeBET. All rights reserved.</p>
+        </div>
+    </footer>
 
-    <script type="module" src="registrationController.js"></script>
+    <script src="indexScripts.js"></script>
+    <script src="scriptButton.js"></script>
 </body>
 </html>
