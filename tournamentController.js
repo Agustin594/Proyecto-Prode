@@ -1,6 +1,51 @@
 import { tournamentAPI } from './tournamentAPI.js';
 export default loadTournaments;
 
+const competitionColors = {
+  4: "#fc9802",
+  5: "#0230fc",
+  6: "#fc1f02",
+  7: "#fcce02",
+  8: "#7702fc",
+  9: "#028bfc",
+  10: "#000a92",
+  11: "#dd0000",
+  14: "#fc02db",
+  15: "#02ebfc",
+  16: "#02fc23",
+  17: "#fcce02"
+};
+
+const competitionSecundaryColors = {
+  4: "#474747",
+  5: "#d8d8d8",
+  6: "#d8d8d8",
+  7: "#474747",
+  8: "#d8d8d8",
+  9: "#d8d8d8",
+  10: "#d8d8d8",
+  11: "#d8d8d8",
+  14: "#d8d8d8",
+  15: "#474747",
+  16: "#474747",
+  17: "#474747"
+};
+
+const competitionImage = {
+  4: "image/EURO.png",
+  5: "image/ChampionsLeague.png",
+  6: "image/LaLiga.png",
+  7: "image/Mundial.png",
+  8: "image/PremierLeague.png",
+  9: "image/SerieA.png",
+  10: "image/Ligue1.png",
+  11: "image/Bundesliga.png",
+  14: "image/CopaAmerica.png",
+  15: "image/LPF.png",
+  16: "image/Brasileirao.png",
+  17: "image/Libertadores.png"
+};
+
 document.addEventListener('DOMContentLoaded', () => 
 {
     const token = localStorage.getItem("token")
@@ -194,41 +239,95 @@ function renderTournamentList(tournaments, id, type)
     } else {
         tournaments.forEach(t => 
         {
-            const div = document.createElement('div');
-            div.classList.add("tournament-card");
-            div.dataset.id = t.id;
+            const container = document.createElement('div');
+            container.classList.add("tournament-card");
+            container.dataset.id = t.id;
+            container.style.setProperty(
+                "--competition-color",
+                competitionColors[t.competition_id]
+            );
+            container.style.setProperty(
+                "--competition-secundary-color",
+                competitionSecundaryColors[t.competition_id]
+            );
 
-            const p = document.createElement("p");
+            const containerImg = document.createElement('div');
+            containerImg.classList.add("container-img");
 
-            const status = t.open ? "Inscripción abierta" : "Inscripción cerrada";
-            const visibility = t.public ? "Público" : "Privado";
-            const price = t.entry_price === 0 ? "Gratis" : `$${t.entry_price}`;
+            const img = document.createElement("img");
+            img.src = competitionImage[t.competition_id];
+            img.alt = `${t.name} logo`;
 
-            p.textContent = `${t.name} — Participantes: ${t.registered_participants}/${t.participant_limit} — ${price} — ${visibility} — ${status}`;
+            containerImg.appendChild(img);
 
-            div.appendChild(p);
+            const competition = document.createElement("h4");
+            competition.textContent = t.name;
+
+            const containerData = document.createElement("div");
+            containerData.classList.add("container-data");
+
+            container.appendChild(containerImg);
+            container.appendChild(competition);
+            container.appendChild(containerData);
+
+            const info = document.createElement("div");
+            info.classList.add("container-info");
+
+            const containerBtn = document.createElement("div");
+            containerBtn.classList.add("container-btn");
+
+            containerData.appendChild(info);
+            containerData.appendChild(containerBtn);
+
+            const tInfo = document.createElement("div");
+
+            info.appendChild(tInfo);
+
+            const p1 = document.createElement("p");
+            const p2 = document.createElement("p");
+
+            p1.textContent = t.public ? "Público" : "Privado";
+            const i = document.createElement("i");
+            i.classList.add("fa-solid");
+            if(t.public){
+                i.classList.add("fa-unlock");
+            } else {
+                i.classList.add("fa-lock");
+            }
+            p1.appendChild(i);
+
+            p2.textContent = `Participantes: ${t.registered_participants}/${t.participant_limit}`;
+
+            tInfo.appendChild(p1);
+            tInfo.appendChild(p2);
 
             if(type == "register") {
                 if(t.registered_participants < t.participant_limit && t.open){
-                    registerButton(div, t);
+                    registerButton(containerBtn, t);
                 }
             } else if(type == "delete") {
                 if(t.open){
-                    deleteButton(div, t.id);
+                    deleteButton(containerBtn, t.id);
                 }
             }
 
-            list.appendChild(div);
+            list.appendChild(container);
         });
     }
 }
 
 function registerButton(container, tournament) {
     const btn = document.createElement("button");
-    btn.classList.add = "join";
+    btn.classList.add("tournament-btn");
     btn.id = "registerBtn"
     btn.dataset.type = "register";
-    btn.textContent = "Register";
+    if(tournament.entry_price === 0){
+        btn.textContent = "FREE";
+        btn.classList.add("free");
+    } else {
+        btn.textContent = `${tournament.entry_price} FICHAS`;
+        btn.classList.add("pay");
+    }
     btn.dataset.tournamentId = tournament.id;
     if(tournament.password == null)
         btn.dataset.hasPassword = "false"
@@ -239,8 +338,10 @@ function registerButton(container, tournament) {
 
 function deleteButton(container, tournament_id) {
     const btn = document.createElement("button");
+    btn.classList.add("tournament-btn");
+    btn.classList.add("delete");
     btn.dataset.type = "delete";
-    btn.textContent = "Delete";
+    btn.textContent = "Abandon";
     btn.dataset.tournamentId = tournament_id;
     container.appendChild(btn);
 }

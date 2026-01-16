@@ -11,3 +11,5 @@ def main():
 
     for competition in competitions:
         sync_matches(db, competition)
+
+main()

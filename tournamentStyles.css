@@ -1,9 +1,20 @@
-.tournament-card {
-    cursor: pointer;
+:root {
+    --primary-color: rgb(70, 180, 231);
+    --secondary-color: white;
 }
 
-.tournament-card:hover {
-    background-color: lightgray;
+* {
+    font-family: "Figtree", sans-serif;
+    font-feature-settings: normal;
+    font-style: normal;
+    font-variation-settings: normal;
+    letter-spacing: 0;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background-color: rgb(231, 227, 227);
 }
 
 .locked {
@@ -42,4 +53,144 @@
 
 .error-message {
   color: red;
+}
+
+/********************************************************************/
+
+.container-tournaments {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.container-tournaments h2 {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  font-weight: 200;
+  padding: 25px 0;
+  width: 100%;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.tournament-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 150px;
+  width: 80%;
+  background:
+        url("image/gold-background.png"),
+        linear-gradient(135deg, #ffffff, #fff6d6);
+  background: radial-gradient(circle at 10% 50%, rgb(193, 248, 147), transparent 50%),
+        linear-gradient(135deg, #345742, #045c2a);
+  background: linear-gradient( 135deg,rgba(255,255,255,0.15),var(--competition-color));
+  background-size: cover;
+  background-position: 10% 75%;
+  background-repeat: no-repeat;
+  margin: 20px;
+  padding: 10px 10px 10px 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,0,0,.1);;
+}
+
+.tournament-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.2);
+}
+
+.container-img img {
+  height: 100%;
+}
+
+.tournament-card h4 {
+  margin-top: 10px;
+  color: rgb(32, 32, 32);
+  font-weight: 600;
+  font-size: 1.4rem;
+  letter-spacing: 0.1px;
+}
+
+.container-data {
+  width: 20%;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: end;
+
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.25),
+    rgba(255,255,255,0.05)
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  /* Borde tipo vidrio */
+  border-radius: 13px;
+  
+
+  /* Sombra suave */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+
+  color: var(--competition-secundary-color);
+}
+
+.container-info p {
+  text-align: right;
+}
+
+.container-info i {
+  margin-left: 6px;
+  opacity: 60%;
+}
+
+.container-btn {
+  width: 100%;
+}
+
+.tournament-btn {
+    width: 100%;
+    padding: 15px 10px;
+    color: rgb(212, 212, 212);
+    font-weight: 600;
+    font-size: 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.free {
+  background: transparent;
+  border: 1px solid #04c253;
+  color: #04c253;
+}
+
+.free:hover {
+  background-color: rgb(0, 70, 0, 0.4);
+}
+
+.pay {
+  background: #e9ec07;
+  color: #3a3a3a;
+}
+
+.pay:hover {
+  background-color: rgba(216, 216, 0, 0.6);
+}
+
+.delete {
+  background-color: rgb(245, 34, 34);
+  color: white;
+}
+
+.delete:hover {
+  background-color: rgb(156, 0, 0, 0.8);
 }

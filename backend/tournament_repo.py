@@ -67,6 +67,7 @@ def fetch_all(user_id):
     query = """
         SELECT t.id,
             c.name,
+            c.id as competition_id,
             t.open,
             t.registered_participants,
             t.participant_limit,
@@ -99,6 +100,7 @@ def fetch_by_user_id(user_id):
     query = """
         SELECT t.id,
                c.name,
+               c.id as competition_id,
                t.open,
                t.registered_participants,
                t.participant_limit,
@@ -119,6 +121,7 @@ def fetch_by_id(tournament_id):
     query = """
         SELECT t.id,
                c.name,
+               c.id as competition_id,
                t.open,
                t.registered_participants,
                t.participant_limit,

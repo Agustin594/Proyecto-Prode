@@ -56,12 +56,13 @@ def get_tournaments(user_id):
         tournaments.append({
             "id": r[0],
             "name": r[1],
-            "open": r[2],
-            "registered_participants": r[3],
-            "participant_limit": r[4],
-            "entry_price": r[5],
-            "public": r[6],
-            "password": r[7]
+            "competition_id": r[2],
+            "open": r[3],
+            "registered_participants": r[4],
+            "participant_limit": r[5],
+            "entry_price": r[6],
+            "public": r[7],
+            "password": r[8]
         })
 
     return tournaments
@@ -85,12 +86,13 @@ def get_tournaments_by_user_id(user_id):
         tournaments.append({
             "id": r[0],
             "name": r[1],
-            "open": r[2],
-            "registered_participants": r[3],
-            "participant_limit": r[4],
-            "entry_price": r[5],
-            "public": r[6],
-            "password": r[7]
+            "competition_id": r[2],
+            "open": r[3],
+            "registered_participants": r[4],
+            "participant_limit": r[5],
+            "entry_price": r[6],
+            "public": r[7],
+            "password": r[8]
         })
 
     return tournaments
@@ -125,12 +127,13 @@ def get_tournament_by_id(tournament_id):
     return {
         "id": t[0],
         "name": t[1],
-        "open": t[2],
-        "registered_participants": t[3],
-        "participant_limit": t[4],
-        "entry_price": t[5],
-        "public": t[6],
-        "password": t[7]
+        "competition_id": t[2],
+        "open": t[3],
+        "registered_participants": t[4],
+        "participant_limit": t[5],
+        "entry_price": t[6],
+        "public": t[7],
+        "password": t[8]
     }
 
 def get_tournament_standings(tournament_id):
