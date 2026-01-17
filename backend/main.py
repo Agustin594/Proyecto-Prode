@@ -1,9 +1,11 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Query
 from schemas import TournamentCreate, TournamentRegister, SpecialPrediction, MatchPrediction, TournamentDelete
 import tournament_services as ts
+import match_services as ms
 from fastapi.middleware.cors import CORSMiddleware
 from auth import router
 from dependencies import get_current_user_id
+from datetime import date
 
 app = FastAPI()
 
@@ -86,3 +88,7 @@ def inscription(data: TournamentRegister, user_id:int = Depends(get_current_user
 def delete(data: TournamentDelete, user_id:int = Depends(get_current_user_id)):
     tournament_id = ts.delete_tournament_user(user_id, data)
     return {"tournament_id": tournament_id} 
+
+@app.get("/matches")
+def get_all_matches(date: date = Query(...)):
+    return ms.get_all_matches(date)

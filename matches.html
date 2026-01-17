@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/76efffbb11.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="matchesStyles.css">
+    <title>ProdeBET</title>
+</head>
+<body>
+    <a href="tournament.html">Tournaments</a>
+
+    <section class="match-section">
+        <div class="date-selector">
+            <button id="prevDay">◀</button>
+
+            <div id="currentDateLabel">Hoy</div>
+
+            <button id="nextDay">▶</button>
+        </div>
+
+        <!-- Calendar Modal -->
+        <div id="calendarModal" class="calendar-modal hidden">
+            <div class="calendar">
+
+                <!-- HEADER -->
+                <div class="calendar-header">
+                    <button id="prevMonth">‹</button>
+                    <span id="calendarTitle"></span>
+                    <button id="nextMonth">›</button>
+                </div>
+
+                <!-- DIAS SEMANA -->
+                <div class="calendar-weekdays">
+                    <span>dom</span>
+                    <span>lun</span>
+                    <span>mar</span>
+                    <span>mié</span>
+                    <span>jue</span>
+                    <span>vie</span>
+                    <span>sáb</span>
+                </div>
+
+                <!-- DIAS -->
+                <div id="calendarDays" class="calendar-days"></div>
+
+                <button class="calendar-close" id="closeCalendar">HOY</button>
+            </div>
+        </div>
+
+        <div id="matchList"></div>
+    </section>
+
+    <script type="module" src="matchController.js"></script>
+</body>
+</html>

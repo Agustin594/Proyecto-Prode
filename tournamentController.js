@@ -370,7 +370,6 @@ function setupTournamentData(){
 
         const tournamentId = card.dataset.id;
 
-        // si clickea el botón interno, evitás conflicto
         if (e.target.tagName === "BUTTON") return;
 
         window.location.href = `tournament.html?id=${tournamentId}`;
