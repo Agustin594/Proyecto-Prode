@@ -38,6 +38,10 @@ body {
     padding-top: 10px;
 }
 
+.competition-matches:first-child {
+    border: none;
+}
+
 .info {
     display: flex;
     flex-direction: row;
@@ -47,10 +51,19 @@ body {
 .container-img {
     width: 40px;
     height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
 }
 
 .container-img img {
     width: 50%;
+}
+
+.competition {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .competition p {
@@ -126,6 +139,10 @@ body {
     color: red;
 }
 
+.winner {
+    font-weight: 600;
+}
+
 /**************************************************************************/
 
 /* INPUT CALENDAR */
@@ -152,6 +169,7 @@ body {
     justify-content: space-between;
     align-items: center;
     font-weight: 600;
+    color: rgb(21, 50, 214);
 }
 
 .calendar-header button {
@@ -159,6 +177,14 @@ body {
     border: none;
     font-size: 20px;
     cursor: pointer;
+}
+
+.calendar-header i {
+    color: rgb(21, 50, 214);
+}
+
+.calendar-header i:hover {
+    color: #011768;
 }
 
 .calendar-weekdays, .calendar-days {
@@ -178,18 +204,18 @@ body {
     gap: 6px;
 }
 
-.calendar-days span {
-    padding: 8px 0;
+.calendar-days span:not(.blank) {
+    padding: 10px 0;
     cursor: pointer;
     border-radius: 50%;
 }
 
-.calendar-days span:hover {
+.calendar-days span:not(.selected, .blank):hover {
     background: #eee;
 }
 
 .calendar-days .today {
-    border: 1px solid #2f5bff;
+    background-color: #d8d8d8;
 }
 
 .calendar-days .selected {
@@ -197,7 +223,7 @@ body {
     color: white;
 }
 
-.calendar-close {
+.today-match {
     margin-top: 12px;
     width: 100%;
     padding: 8px;
@@ -208,6 +234,92 @@ body {
     cursor: pointer;
 }
 
+.today-match:hover {
+    background-color: #0533db;
+}
+
+.close-calendar {
+    text-align: end;
+    margin-bottom: 10px;
+}
+
+.close-calendar i {
+    color: rgb(21, 50, 214);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.close-calendar i:hover {
+    color: #011768;
+}
+
 .hidden {
     display: none;
+}
+
+/**************************************************************************/
+
+/* Botones superiores */
+
+.match-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid lightgray;
+}
+
+.nav-buttons {
+    display: flex;
+}
+
+.nav-buttons div {
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.nav-buttons div:not(.button-selected):hover {
+    background-color: rgb(228, 228, 228);
+}
+
+.nav-buttons p {
+    font-weight: 600;
+    color: rgba(21, 50, 214, 0.548);
+    font-size: 15px;
+}
+
+.button-selected {
+    border-bottom: 3px solid rgb(21, 50, 214);
+}
+
+.button-selected p {
+    color: rgb(21, 50, 214);
+}
+
+.date-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 178px;
+    gap: 16px;
+    border: 1px solid lightgrey;
+    border-radius: 25px;
+    color: rgb(21, 50, 214);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+#prevDay {
+    border-right: 1px solid lightgray;
+    padding: 10px 10px 10px 15px;
+    height: 100%;
+}
+
+#nextDay {
+    border-left: 1px solid lightgray;
+    padding: 10px 15px 10px 10px;
+    height: 100%;
+}
+
+.date-selector > :hover {
+    color: rgb(5, 24, 133);
 }

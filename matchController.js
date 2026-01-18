@@ -62,7 +62,7 @@ function renderMatchList(matches) {
 
     if(matches.length === 0){
         const p = document.createElement("p");
-        p.textContent = "There are no tournaments available.";
+        p.textContent = "There are no matches available.";
         list.appendChild(p);
     } else {
 
@@ -194,6 +194,14 @@ function renderMatchList(matches) {
                 p7.classList.add("in-progress");
                 p8.classList.add("in-progress");
             }
+
+            if(m.home_goals > m.away_goals) {
+                p5.classList.add("winner");
+                p7.classList.add("winner");
+            } else if(m.home_goals < m.away_goals) {
+                p6.classList.add("winner");
+                p8.classList.add("winner");
+            }
         })
     }
 }
@@ -218,7 +226,9 @@ function renderCalendar() {
 
     // Espacios vacíos
     for (let i = 0; i < firstDay; i++) {
-        daysContainer.appendChild(document.createElement("span"));
+        const span = document.createElement("span");
+        span.classList.add("blank");
+        daysContainer.appendChild(span);
     }
 
     // Días
@@ -277,17 +287,36 @@ function closeCalendar() {
     modal.classList.add("hidden");
 }
 
-document.getElementById("closeCalendar").onclick = () => {
+document.getElementById("todayMatch").onclick = () => {
     currentDate = new Date();
     closeCalendar();
     updateDate();
 };
 
+document.getElementById("closeCalendar").onclick = () => {
+    closeCalendar();
+};
+
 document.getElementById("currentDateLabel").addEventListener("click", openCalendar);
 
 function updateDate() {
-    document.getElementById("currentDateLabel").textContent = formatDate(currentDate);
+    const containerDate = document.getElementById("currentDateLabel");
 
+    const today = new Date();
+    const normalize = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    const diffDays =
+    (normalize(currentDate) - normalize(today)) / (1000 * 60 * 60 * 24);
+
+    if (diffDays === -1) {
+        containerDate.textContent = "Ayer";
+    } else if (diffDays === 0) {
+        containerDate.textContent = "Hoy";
+    } else if (diffDays === 1) {
+        containerDate.textContent = "Mañana";
+    } else {
+        containerDate.textContent = formatDate(currentDate);
+    }
     loadAllMatchList(formatISO(currentDate));
 }
 
@@ -297,9 +326,9 @@ function formatISO(date) {
 
 function formatDate(date) {
   return date.toLocaleDateString("es-AR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit"
   });
 }
 

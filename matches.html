@@ -11,23 +11,37 @@
     <a href="tournament.html">Tournaments</a>
 
     <section class="match-section">
-        <div class="date-selector">
-            <button id="prevDay">◀</button>
+        <div class="match-nav">
+            <div class="nav-buttons">
+                <div class="button-selected">
+                    <p>All</p>
+                </div>
+                <div>
+                    <p>My tournaments</p>
+                </div>
+            </div>
+            <div class="date-selector">
+                <div id="prevDay"><i class="fa-solid fa-chevron-left"></i></div>
 
-            <div id="currentDateLabel">Hoy</div>
+                <div id="currentDateLabel"></div>
 
-            <button id="nextDay">▶</button>
+                <div id="nextDay"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
         </div>
 
         <!-- Calendar Modal -->
         <div id="calendarModal" class="calendar-modal hidden">
             <div class="calendar">
 
+                <div class="close-calendar">
+                    <i class="fa-solid fa-xmark" id="closeCalendar"></i>
+                </div>
+
                 <!-- HEADER -->
                 <div class="calendar-header">
-                    <button id="prevMonth">‹</button>
+                    <button id="prevMonth"><i class="fa-solid fa-chevron-left"></i></button>
                     <span id="calendarTitle"></span>
-                    <button id="nextMonth">›</button>
+                    <button id="nextMonth"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
 
                 <!-- DIAS SEMANA -->
@@ -44,7 +58,7 @@
                 <!-- DIAS -->
                 <div id="calendarDays" class="calendar-days"></div>
 
-                <button class="calendar-close" id="closeCalendar">HOY</button>
+                <button class="today-match" id="todayMatch">HOY</button>
             </div>
         </div>
 
