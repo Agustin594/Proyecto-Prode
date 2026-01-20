@@ -44,11 +44,22 @@ document.addEventListener('DOMContentLoaded', () =>
     const params = new URLSearchParams(window.location.search);
 
     updateDate();
+    loadAllMatchList(formatISO(currentDate));
+    setupButtons();
 });
 
 async function loadAllMatchList(date) {
     try {
         const matches = await matchAPI.fetchByPath(`?date=${date}`);
+        renderMatchList(matches);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function loadMineMatchList(date) {
+    try {
+        const matches = await matchAPI.fetchByPath(`personal?date=${date}`);
         console.log(matches);
         renderMatchList(matches);
     } catch (err) {
@@ -246,9 +257,13 @@ function renderCalendar() {
         }
 
         span.addEventListener("click", () => {
-        currentDate = date;
-        closeCalendar();
-        updateDate();
+            currentDate = date;
+            closeCalendar();
+            updateDate();
+            if(document.getElementById("generalBtn").classList.contains("button-selected"))
+                loadAllMatchList(formatISO(currentDate));
+            else
+                loadMineMatchList(formatISO(currentDate));
         });
 
         daysContainer.appendChild(span);
@@ -266,13 +281,21 @@ document.getElementById("nextMonth").onclick = () => {
 };
 
 document.getElementById("prevDay").addEventListener("click", () => {
-  currentDate.setDate(currentDate.getDate() - 1);
-  updateDate();
+    currentDate.setDate(currentDate.getDate() - 1);
+    updateDate();
+    if(document.getElementById("generalBtn").classList.contains("button-selected"))
+        loadAllMatchList(formatISO(currentDate));
+    else
+        loadMineMatchList(formatISO(currentDate));
 });
 
 document.getElementById("nextDay").addEventListener("click", () => {
-  currentDate.setDate(currentDate.getDate() + 1);
-  updateDate();
+    currentDate.setDate(currentDate.getDate() + 1);
+    updateDate();
+    if(document.getElementById("generalBtn").classList.contains("button-selected"))
+        loadAllMatchList(formatISO(currentDate));
+    else
+        loadMineMatchList(formatISO(currentDate));
 });
 
 const modal = document.getElementById("calendarModal");
@@ -317,7 +340,6 @@ function updateDate() {
     } else {
         containerDate.textContent = formatDate(currentDate);
     }
-    loadAllMatchList(formatISO(currentDate));
 }
 
 function formatISO(date) {
@@ -336,4 +358,29 @@ function isSameDay(a, b) {
   return a.getDate() === b.getDate() &&
          a.getMonth() === b.getMonth() &&
          a.getFullYear() === b.getFullYear();
+}
+
+function setupButtons() {
+    const generalBtn = document.getElementById("generalBtn");
+    const personalBtn = document.getElementById("personalBtn");
+
+    generalBtn.addEventListener("click", () => {
+        if(!generalBtn.classList.contains("button-selected")) {
+            generalBtn.classList.add("button-selected");
+            personalBtn.classList.remove("button-selected");
+            currentDate = new Date();
+            updateDate();
+            loadAllMatchList(formatISO(currentDate));
+        }
+    });
+
+    personalBtn.addEventListener("click", () => {
+        if(!personalBtn.classList.contains("button-selected")) {
+            personalBtn.classList.add("button-selected");
+            generalBtn.classList.remove("button-selected");
+            currentDate = new Date();
+            updateDate();
+            loadMineMatchList(formatISO(currentDate));
+        }
+    });
 }

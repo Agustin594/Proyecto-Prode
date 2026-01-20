@@ -17,13 +17,20 @@ body {
     background-color: rgb(231, 227, 227);
 }
 
+.sections {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap-reverse;
+    padding: 20px;
+    align-items: flex-end;
+}
+
 /***************************************************************/
 
 .match-section {
-    width: 50%;
+    width: 48%;
     border-radius: 14px;
     background-color: white;
-    margin: 10px;
     padding: 5px;
     display: flex;
     flex-direction: column;
@@ -322,4 +329,85 @@ body {
 
 .date-selector > :hover {
     color: rgb(5, 24, 133);
+}
+
+/*******************************************************************/
+
+/* IMPORTANT MATCH */
+
+.important-match-section {
+    width: 48%;
+    border-radius: 14px;
+    background-color: white;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 15px rgba(0,0,0,.1);
+}
+
+.important-competition {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+}
+
+.important-competition img {
+    width: 50px;
+    margin-right: 5px;
+}
+
+.important-competition p {
+    font-size: 14px;
+}
+
+.important-match {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 5px;
+    border-radius: 5px;
+}
+
+.important-match > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 15px;
+}
+
+.important-match:hover {
+    background-color: #eee;
+}
+
+.important-match img {
+    width: 75px;
+    margin-bottom: 5px;
+}
+
+.important-match p {
+    margin: 0;
+}
+
+.important-home-team p, .important-away-team p {
+    font-size: 14px;
+    font-weight: 600;
+    color: #353535;
+}
+
+.important-schedule p:first-child {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.important-schedule p:nth-child(2) {
+    font-size: 14px;
+    color: #888;
+}
+
+.important-schedule p:nth-child(3) {
+    font-size: 17px;
+    color: #888;
+    font-weight: 600;
+    margin-top: 5px;
 }

@@ -9,7 +9,14 @@ def main():
 
     competitions = [1, 7, 8, 16, 17, 23, 34, 35, 133, 155, 325, 384]
 
-    for competition in competitions:
+    current_competitions = [7, 8, 17, 23, 34, 35, 155, 325, 384]
+
+    for competition in current_competitions:
         sync_matches(db, competition)
 
-main()
+def main2():
+    db= Database()
+
+    sync_matches(db, 7) 
+
+main2()

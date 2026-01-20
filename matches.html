@@ -10,60 +10,84 @@
 <body>
     <a href="tournament.html">Tournaments</a>
 
-    <section class="match-section">
-        <div class="match-nav">
-            <div class="nav-buttons">
-                <div class="button-selected">
-                    <p>All</p>
+    <div class="sections">
+        <section class="match-section">
+            <div class="match-nav">
+                <div class="nav-buttons">
+                    <div id="generalBtn" class="button-selected">
+                        <p>All</p>
+                    </div>
+                    <div id="personalBtn">
+                        <p>My tournaments</p>
+                    </div>
                 </div>
-                <div>
-                    <p>My tournaments</p>
+                <div class="date-selector">
+                    <div id="prevDay"><i class="fa-solid fa-chevron-left"></i></div>
+
+                    <div id="currentDateLabel"></div>
+
+                    <div id="nextDay"><i class="fa-solid fa-chevron-right"></i></div>
                 </div>
             </div>
-            <div class="date-selector">
-                <div id="prevDay"><i class="fa-solid fa-chevron-left"></i></div>
 
-                <div id="currentDateLabel"></div>
+            <!-- Calendar Modal -->
+            <div id="calendarModal" class="calendar-modal hidden">
+                <div class="calendar">
 
-                <div id="nextDay"><i class="fa-solid fa-chevron-right"></i></div>
+                    <div class="close-calendar">
+                        <i class="fa-solid fa-xmark" id="closeCalendar"></i>
+                    </div>
+
+                    <!-- HEADER -->
+                    <div class="calendar-header">
+                        <button id="prevMonth"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="calendarTitle"></span>
+                        <button id="nextMonth"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+
+                    <!-- DIAS SEMANA -->
+                    <div class="calendar-weekdays">
+                        <span>dom</span>
+                        <span>lun</span>
+                        <span>mar</span>
+                        <span>mié</span>
+                        <span>jue</span>
+                        <span>vie</span>
+                        <span>sáb</span>
+                    </div>
+
+                    <!-- DIAS -->
+                    <div id="calendarDays" class="calendar-days"></div>
+
+                    <button class="today-match" id="todayMatch">HOY</button>
+                </div>
             </div>
-        </div>
 
-        <!-- Calendar Modal -->
-        <div id="calendarModal" class="calendar-modal hidden">
-            <div class="calendar">
+            <div id="matchList"></div>
+        </section>
 
-                <div class="close-calendar">
-                    <i class="fa-solid fa-xmark" id="closeCalendar"></i>
-                </div>
-
-                <!-- HEADER -->
-                <div class="calendar-header">
-                    <button id="prevMonth"><i class="fa-solid fa-chevron-left"></i></button>
-                    <span id="calendarTitle"></span>
-                    <button id="nextMonth"><i class="fa-solid fa-chevron-right"></i></button>
-                </div>
-
-                <!-- DIAS SEMANA -->
-                <div class="calendar-weekdays">
-                    <span>dom</span>
-                    <span>lun</span>
-                    <span>mar</span>
-                    <span>mié</span>
-                    <span>jue</span>
-                    <span>vie</span>
-                    <span>sáb</span>
-                </div>
-
-                <!-- DIAS -->
-                <div id="calendarDays" class="calendar-days"></div>
-
-                <button class="today-match" id="todayMatch">HOY</button>
+        <section class="important-match-section">
+            <div class="important-competition">
+                <img src="image/ChampionsLeague.png" alt="Champions League logo">
+                <p>Champions League</p>
             </div>
-        </div>
-
-        <div id="matchList"></div>
-    </section>
+            <div class="important-match">
+                <div class="important-home-team">
+                    <img src="image/Logos/aldosivi.png" alt="Aldosivi logo">
+                    <p>Aldosivi</p>
+                </div>
+                <div class="important-schedule">
+                    <p>17:00</p>
+                    <p>Hoy</p>
+                    <p>6:40:00</p>
+                </div>
+                <div class="important-away-team">
+                    <img src="image/Logos/chapecoense.png" alt="Chapecoense logo">
+                    <p>Chapecoense</p>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <script type="module" src="matchController.js"></script>
 </body>
