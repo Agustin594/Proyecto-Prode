@@ -41,7 +41,7 @@ const competitionImage = {
   10: "image/Ligue1.png",
   11: "image/Bundesliga.png",
   14: "image/CopaAmerica.png",
-  15: "image/LPF.png",
+  15: "image/LPF2.png",
   16: "image/Brasileirao.png",
   17: "image/Libertadores.png"
 };

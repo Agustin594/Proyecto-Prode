@@ -10,7 +10,7 @@ const competitionImage = {
   10: "image/Ligue1.png",
   11: "image/Bundesliga.png",
   14: "image/CopaAmerica.png",
-  15: "image/LPF.png",
+  15: "image/LPF2.png",
   16: "image/Brasileirao.png",
   17: "image/Libertadores.png"
 };
@@ -46,6 +46,11 @@ document.addEventListener('DOMContentLoaded', () =>
     updateDate();
     loadAllMatchList(formatISO(currentDate));
     setupButtons();
+    loadImportantMatchList();
+    updateImportantSlider();
+    startAutoSlide();
+    setupCalendar();
+    loadCalendarMatchList();
 });
 
 async function loadAllMatchList(date) {
@@ -60,7 +65,6 @@ async function loadAllMatchList(date) {
 async function loadMineMatchList(date) {
     try {
         const matches = await matchAPI.fetchByPath(`personal?date=${date}`);
-        console.log(matches);
         renderMatchList(matches);
     } catch (err) {
         console.log(err);
@@ -167,6 +171,11 @@ function renderMatchList(matches) {
 
             teams.appendChild(homeTeam);
 
+            const homeImg = document.createElement("img");
+            homeImg.src = m.home_team_image ? `image/Logos/${m.home_team_image}.png` : "image/Logos/default.svg";
+
+            homeTeam.appendChild(homeImg);
+
             const p5 = document.createElement("p");
             p5.textContent = m.home_team_name;
 
@@ -176,6 +185,11 @@ function renderMatchList(matches) {
             awayTeam.classList.add("away-team");
 
             teams.appendChild(awayTeam);
+
+            const awayImg = document.createElement("img");
+            awayImg.src = m.away_team_image ? `image/Logos/${m.away_team_image}.png` : "image/Logos/default.svg";
+
+            awayTeam.appendChild(awayImg);
 
             const p6 = document.createElement("p");
             p6.textContent = m.away_team_name;
@@ -235,14 +249,12 @@ function renderCalendar() {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
 
-    // Espacios vacíos
     for (let i = 0; i < firstDay; i++) {
         const span = document.createElement("span");
         span.classList.add("blank");
         daysContainer.appendChild(span);
     }
 
-    // Días
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
         const span = document.createElement("span");
@@ -384,3 +396,428 @@ function setupButtons() {
         }
     });
 }
+
+/* Important-match carousel */
+
+const track = document.getElementById("importantMatchTrack");
+const dotsContainer = document.getElementById("importantMatchDots");
+
+let currentIndex = 0;
+let importantMatchLength = 0;
+
+async function loadImportantMatchList() {
+    try {
+        const matches = await matchAPI.fetchByPath(`important`);
+        importantMatchLength = matches.length;
+        renderMatchCarousel(matches);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+function renderMatchCarousel(matches) {
+    matches.forEach((m, i) => {
+        const card = document.createElement("div");
+        card.classList.add("important-match-data");
+        
+        const competition = document.createElement("div");
+        competition.classList.add("important-competition");
+
+        const competitionImg = document.createElement("img");
+        competitionImg.src = competitionImage[m.competition_id];
+        /*competitionImg.alt = m.competition_name + " logo";*/
+
+        const competitionText = document.createElement("p");
+        competitionText.textContent = m.competition_name;
+
+        competition.appendChild(competitionImg);
+        competition.appendChild(competitionText);
+
+        const match = document.createElement("div");
+        match.classList.add("important-match");
+
+        const homeTeam = document.createElement("div");
+        homeTeam.classList.add("important-home-team");
+
+        const homeImg = document.createElement("img");
+        homeImg.src = m.home_team_image ? `image/Logos/${m.home_team_image}.png` : "image/Logos/default.svg";
+
+        const homeText = document.createElement("p");
+        homeText.textContent = m.home_team_name;
+
+        homeTeam.appendChild(homeImg);
+        homeTeam.appendChild(homeText);
+
+        const schedule = document.createElement("div");
+        schedule.classList.add("important-schedule");
+
+        const fecha = new Date(m.date);
+
+        const hora = fecha.toLocaleTimeString("es-AR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+        });
+
+        const time = document.createElement("p");
+        time.textContent = hora;
+
+        const label = document.createElement("p");
+
+        const today = new Date();
+        const matchDate = new Date(m.date);
+        const normalize = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+        const diffDays = (normalize(matchDate) - normalize(today)) / (1000 * 60 * 60 * 24);
+
+        if (diffDays === -1) {
+            label.textContent = "Ayer";
+        } else if (diffDays === 0) {
+            label.textContent = "Hoy";
+        } else if (diffDays === 1) {
+            label.textContent = "Mañana";
+        } else {
+            label.textContent = formatDate(matchDate);
+        }
+
+        schedule.appendChild(time);
+        schedule.appendChild(label);
+
+        const awayTeam = document.createElement("div");
+        awayTeam.classList.add("important-away-team");
+
+        const awayImg = document.createElement("img");
+        awayImg.src = m.away_team_image ? `image/Logos/${m.away_team_image}.png` : "image/Logos/default.svg";
+
+        const awayText = document.createElement("p");
+        awayText.textContent = m.away_team_name;
+
+        awayTeam.appendChild(awayImg);
+        awayTeam.appendChild(awayText);
+
+        match.appendChild(homeTeam);
+        match.appendChild(schedule);
+        match.appendChild(awayTeam);
+
+        card.appendChild(competition);
+        card.appendChild(match);
+
+        track.appendChild(card);
+
+        const dot = document.createElement("div");
+        dot.className = "dot";
+        dot.addEventListener("click", () => goToMatch(i));
+        if(i === 0) {
+            dot.classList.add("active");
+        }
+        dotsContainer.appendChild(dot);
+    });
+}
+
+function updateImportantSlider() {
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+    document.querySelectorAll(".dot").forEach((dot, i) => {
+        dot.classList.toggle("active", i === currentIndex);
+    });
+}
+
+function goToMatch(index) {
+    currentIndex = index;
+    updateImportantSlider();
+}
+
+document.getElementById("prevImportantMatch").onclick = () => {
+    currentIndex = (currentIndex - 1 + importantMatchLength) % importantMatchLength;
+    updateImportantSlider();
+};
+
+document.getElementById("nextImportantMatch").onclick = () => {
+    currentIndex = (currentIndex + 1) % importantMatchLength;
+    updateImportantSlider();
+};
+
+let autoSlideInterval = null;
+
+function startAutoSlide() {
+    if (autoSlideInterval) return;
+
+    autoSlideInterval = setInterval(() => {
+        currentIndex = (currentIndex + 1) % importantMatchLength;
+        updateImportantSlider();
+    }, 15000);
+}
+
+function stopAutoSlide() {
+  clearInterval(autoSlideInterval);
+  autoSlideInterval = null;
+}
+
+const importantSection = document.getElementById("importantMatchSection");
+
+importantSection.addEventListener("mouseenter", () => {
+  stopAutoSlide();
+});
+
+importantSection.addEventListener("mouseleave", () => {
+  startAutoSlide();
+});
+
+/* COUNTDOWN TO IMPLEMENT IN THE FUTURE
+function getCountdown(date) {
+  const now = new Date();
+  const diff = date - now;
+
+  if (diff <= 0) return null;
+
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return {
+    hours,
+    minutes,
+    seconds
+  };
+}
+
+function formatCountdown({ hours, minutes, seconds }) {
+  return (
+    String(hours).padStart(2, "0") + ":" +
+    String(minutes).padStart(2, "0") + ":" +
+    String(seconds).padStart(2, "0")
+  );
+} */
+
+/* Reminder Calendar */
+
+let reminderCalendarDate = new Date();
+
+function setupCalendar() {
+    const daysContainer = document.getElementById("reminderCalendarDays");
+    const title = document.getElementById("calendarReminderTitle");
+
+    daysContainer.innerHTML = "";
+
+    const year = reminderCalendarDate.getFullYear();
+    const month = reminderCalendarDate.getMonth();
+
+    title.textContent = reminderCalendarDate.toLocaleDateString("es-AR", {
+        month: "long",
+        year: "numeric"
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+
+    for (let i = 0; i < firstDay; i++) {
+        const div = document.createElement("div");
+        div.classList.add("blank");
+        daysContainer.appendChild(div);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const containerDay = document.createElement("div");
+        containerDay.classList.add("container-days");
+
+        containerDay.dataset.day = day;
+        
+        const dayNumber = document.createElement("div");
+        dayNumber.textContent = day;
+
+        containerDay.appendChild(dayNumber);
+
+        if(date.getFullYear() < today.getFullYear())
+            containerDay.classList.add("old");
+        else if (date.getFullYear() === today.getFullYear() && date.getMonth() < today.getMonth())
+            containerDay.classList.add("old");
+        else if(date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() < today.getDate())
+            containerDay.classList.add("old");
+
+        /*span.addEventListener("click", () => {
+            currentDate = date;
+            closeCalendar();
+            updateDate();
+            if(document.getElementById("generalBtn").classList.contains("button-selected"))
+                loadAllMatchList(formatISO(currentDate));
+            else
+                loadMineMatchList(formatISO(currentDate));
+        });*/
+
+        containerDay.addEventListener("click", () => {
+            const day = containerDay.dataset.day;
+            const month = matchCalendarDate.getMonth() + 1; 
+            const year = matchCalendarDate.getFullYear();
+
+            currentDate = new Date(year, month - 1, day);
+
+            const generalBtn = document.getElementById("generalBtn");
+            const personalBtn = document.getElementById("personalBtn");
+            if(!personalBtn.classList.contains("button-selected")) {
+                personalBtn.classList.add("button-selected");
+                generalBtn.classList.remove("button-selected");
+            }
+            updateDate();
+            loadMineMatchList(formatISO(currentDate));
+        })
+
+        daysContainer.appendChild(containerDay);
+    }
+}
+
+let matchCalendarDate = new Date();
+
+async function loadCalendarMatchList() {
+    try {
+        const month = matchCalendarDate.getMonth() + 1; 
+        const year = matchCalendarDate.getFullYear();
+
+        const matches = await matchAPI.fetchByPath(`calendar?month=${month}&year=${year}`);
+        renderMatchCalendar(matches);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+function renderMatchCalendar(matches) {
+    const matchesByDay = {};
+
+    matches.forEach(m => {
+        const day = new Date(m.date).getDate();
+
+        if (!matchesByDay[day]) {
+            matchesByDay[day] = [];
+        }
+
+        matchesByDay[day].push(m);
+    });
+
+    paintCalendar(matchesByDay);
+}
+
+function paintCalendar(matchesByDay) {
+    const maxMatchesPerDay = 3;
+
+    document.querySelectorAll(".container-days").forEach(dayEl => {
+        const day = parseInt(dayEl.dataset.day);
+        const matches = matchesByDay[day] || [];
+
+        matches.slice(0, maxMatchesPerDay).forEach(m => {
+            const div = document.createElement("div");
+            const homeImg = document.createElement("img");
+            const awayImg = document.createElement("img");
+            const p = document.createElement("p");
+
+            homeImg.src = m.home_team_image ? `image/Logos/${m.home_team_image}.png` : "image/Logos/default.svg";
+            awayImg.src = m.away_team_image ? `image/Logos/${m.away_team_image}.png` : "image/Logos/default.svg";
+            p.textContent = "-";
+
+            div.appendChild(homeImg);
+            div.appendChild(p);
+            div.appendChild(awayImg);
+
+            dayEl.appendChild(div);
+        });
+
+        if (matches.length > maxMatchesPerDay) {
+            const div = document.createElement("div");
+            div.classList.add("more-matches");
+            div.textContent = `+${matches.length - maxMatchesPerDay}`;
+            
+            div.addEventListener("click", (e) => {
+                e.stopPropagation();
+
+                const day = dayEl.dataset.day;
+                const month = matchCalendarDate.getMonth() + 1;
+                const year = matchCalendarDate.getFullYear();
+
+                console.log("matches:", matches);
+                openDayPopover(e.currentTarget, matches);
+            });
+            
+            dayEl.appendChild(div);
+        }
+    });
+}
+
+function openDayPopover(triggerEl, matches) {
+    const popover = document.getElementById("day-popover");
+    const container = document.getElementById("popover-matches");
+    const arrow = popover.querySelector(".popover-arrow");
+
+    container.innerHTML = "";
+
+    console.log(matches);
+
+    matches.forEach(m => {
+        const div = document.createElement("div");
+        div.classList.add("popover-match");
+        
+        const homeImg = document.createElement("img");
+        const awayImg = document.createElement("img");
+        const p = document.createElement("p");
+
+        homeImg.src = m.home_team_image ? `image/Logos/${m.home_team_image}.png` : "image/Logos/default.svg";
+        awayImg.src = m.away_team_image ? `image/Logos/${m.away_team_image}.png` : "image/Logos/default.svg";
+        p.textContent = "-";
+
+        div.appendChild(homeImg);
+        div.appendChild(p);
+        div.appendChild(awayImg);
+
+        container.appendChild(div);
+    });
+
+    // button clicked position
+    const rect = triggerEl.getBoundingClientRect();
+
+    popover.style.top = `${rect.bottom + window.scrollY + 8}px`;
+    popover.style.left = `${rect.left + window.scrollX}px`;
+
+    arrow.className = "popover-arrow bottom";
+
+    popover.classList.remove("hidden");
+
+    const popoverRect = popover.getBoundingClientRect();
+    if (popoverRect.right > window.innerWidth) {
+        popover.style.left = `${window.innerWidth - popoverRect.width - 10}px`;
+    }
+}
+
+document.addEventListener("click", () => {
+    document.getElementById("day-popover")?.classList.add("hidden");
+});
+
+document.querySelector(".popover-close")
+    ?.addEventListener("click", e => {
+        e.stopPropagation();
+        document.getElementById("day-popover")?.classList.add("hidden");
+    });
+
+document.getElementById("prevReminderMonth").addEventListener("click", () => {
+    matchCalendarDate.setMonth(matchCalendarDate.getMonth() - 1);
+    const title = document.getElementById("calendarReminderTitle");
+    title.textContent = matchCalendarDate.toLocaleDateString("es-AR", {
+        month: "long",
+        year: "numeric"
+    });
+
+    setupCalendar();
+    loadCalendarMatchList();
+})
+
+document.getElementById("nextReminderMonth").addEventListener("click", () => {
+    matchCalendarDate.setMonth(matchCalendarDate.getMonth() + 1);
+    const title = document.getElementById("calendarReminderTitle");
+    title.textContent = matchCalendarDate.toLocaleDateString("es-AR", {
+        month: "long",
+        year: "numeric"
+    });
+    
+    setupCalendar();
+    loadCalendarMatchList();
+})

@@ -17,6 +17,6 @@ def main():
 def main2():
     db= Database()
 
-    sync_matches(db, 7) 
+    sync_matches(db, 155) 
 
-main2()
+main()

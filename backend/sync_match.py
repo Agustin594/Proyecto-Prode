@@ -11,9 +11,14 @@ def upsert_match(db, match):
             away_team_id,
             home_goals,
             away_goals,
-            play_off,
             qualified_team_id,
-            status
+            status,
+            overtime_home_goals,
+            overtime_away_goals,
+            penalties_home_goals,
+            penalties_away_goals,
+            match_type,
+            referenced_match
         )
         VALUES (
             %(external_id)s,
@@ -23,18 +28,28 @@ def upsert_match(db, match):
             %(away_team_id)s,
             %(home_goals)s,
             %(away_goals)s,
-            %(play_off)s,
             %(qualified_team_id)s,
-            %(status)s
+            %(status)s,
+            %(overtime_home_goals)s,
+            %(overtime_away_goals)s,
+            %(penalties_home_goals)s,
+            %(penalties_away_goals)s,
+            %(match_type)s,
+            %(referenced_match)s
         )
         ON CONFLICT (external_id)
         DO UPDATE SET
             home_goals = EXCLUDED.home_goals,
             away_goals = EXCLUDED.away_goals,
             date = EXCLUDED.date,
-            play_off = EXCLUDED.play_off,
             qualified_team_id = EXCLUDED.qualified_team_id,
             status = EXCLUDED.status
+            overtime_home_goals = EXCLUDED.overtime_home_goals,
+            overtime_away_goals = EXCLUDED.overtime_away_goals,
+            penalties_home_goals = EXCLUDED.penalties_home_goals,
+            penalties_away_goals = EXCLUDED.penalties_away_goals,
+            match_type = EXCLUDED.match_type,
+            referenced_match = EXCLUDED.referenced_match
     """, match)
 
 def finished_match(prev_status, new_status):

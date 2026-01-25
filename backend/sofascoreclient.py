@@ -371,3 +371,12 @@ class Sofascore:
         max_goals = top_scorer[0][1]
         max_scorer = [(player_id, goals) for player_id, goals in top_scorer if goals == max_goals]
         return max_scorer
+    
+def main():
+    client = Sofascore()
+
+    season = client.get_current_season(7)
+
+    print(client.get_matches(7, season))
+
+main()

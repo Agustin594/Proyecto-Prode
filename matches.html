@@ -38,25 +38,22 @@
                         <i class="fa-solid fa-xmark" id="closeCalendar"></i>
                     </div>
 
-                    <!-- HEADER -->
                     <div class="calendar-header">
                         <button id="prevMonth"><i class="fa-solid fa-chevron-left"></i></button>
                         <span id="calendarTitle"></span>
                         <button id="nextMonth"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
 
-                    <!-- DIAS SEMANA -->
                     <div class="calendar-weekdays">
-                        <span>dom</span>
-                        <span>lun</span>
-                        <span>mar</span>
-                        <span>mié</span>
-                        <span>jue</span>
-                        <span>vie</span>
-                        <span>sáb</span>
+                        <span>sun</span>
+                        <span>mon</span>
+                        <span>tue</span>
+                        <span>wed</span>
+                        <span>thu</span>
+                        <span>fri</span>
+                        <span>sat</span>
                     </div>
 
-                    <!-- DIAS -->
                     <div id="calendarDays" class="calendar-days"></div>
 
                     <button class="today-match" id="todayMatch">HOY</button>
@@ -66,27 +63,48 @@
             <div id="matchList"></div>
         </section>
 
-        <section class="important-match-section">
-            <div class="important-competition">
-                <img src="image/ChampionsLeague.png" alt="Champions League logo">
-                <p>Champions League</p>
-            </div>
-            <div class="important-match">
-                <div class="important-home-team">
-                    <img src="image/Logos/aldosivi.png" alt="Aldosivi logo">
-                    <p>Aldosivi</p>
+        <div class="left-column">
+            <section class="important-match-section" id="importantMatchSection">
+                <div class="important-match-slider">
+                    <div class="important-match-track" id="importantMatchTrack">
+                    </div>
                 </div>
-                <div class="important-schedule">
-                    <p>17:00</p>
-                    <p>Hoy</p>
-                    <p>6:40:00</p>
+                <div class="slide-buttons">
+                    <button id="prevImportantMatch" class="prev-match"><i class="fa-solid fa-chevron-left"></i>Previous</button>
+                    <div class="dots" id="importantMatchDots"></div>
+                    <button id="nextImportantMatch" class="next-match">Next<i class="fa-solid fa-chevron-right"></i></button>
                 </div>
-                <div class="important-away-team">
-                    <img src="image/Logos/chapecoense.png" alt="Chapecoense logo">
-                    <p>Chapecoense</p>
+            </section>
+
+            <section class="reminder-calendar">
+                <div class="reminder-calendar-header">
+                    <button id="prevReminderMonth"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="calendarReminderTitle"></span>
+                    <button id="nextReminderMonth"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
-            </div>
-        </section>
+
+                <div class="reminder-calendar-weekdays">
+                    <span>sun</span>
+                    <span>mon</span>
+                    <span>tue</span>
+                    <span>wed</span>
+                    <span>thu</span>
+                    <span>fri</span>
+                    <span>sat</span>
+                </div>
+
+                <div id="reminderCalendarDays" class="reminder-calendar-days"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Match popover -->
+    <div id="day-popover" class="popover hidden">
+        <div class="popover-content">
+            <div class="popover-arrow"></div>
+            <button class="popover-close"><i class="fa-solid fa-xmark"></i></button>
+            <div id="popover-matches"></div>
+        </div>
     </div>
 
     <script type="module" src="matchController.js"></script>

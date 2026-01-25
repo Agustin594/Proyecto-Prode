@@ -96,3 +96,11 @@ def get_all_matches(date: date = Query(...)):
 @app.get("/matches/personal")
 def get_personal_matches(date: date = Query(...), user_id:int = Depends(get_current_user_id)):
     return ms.get_personal_matches(date, user_id)
+
+@app.get("/matches/important")
+def get_important_matches():
+    return ms.get_important_matches()
+
+@app.get("/matches/calendar")
+def get_calendar_matches(month: int, year: int, user_id:int = Depends(get_current_user_id)):
+    return ms.get_calendar_matches(month, year, user_id)
