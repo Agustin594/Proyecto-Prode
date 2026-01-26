@@ -199,7 +199,8 @@ def fetch_teams(tournament_id):
     query = """
         SELECT te.id, te.name
         FROM team as te
-        INNER JOIN tournament as t ON te.season_id = t.season_id
+        INNER JOIN team_participations as tp ON tp.team_id = te.id
+        INNER JOIN tournament as t ON tp.season_id = t.season_id
         WHERE t.id = %s
         ORDER BY te.name
     """

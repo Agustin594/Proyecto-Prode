@@ -185,7 +185,7 @@ def get_tournament_scorers(tournament_id):
 def update_special_prediction(data, user_id):
     db= Database()
 
-    result = db.fetch_one("""SELECT 1 FROM team as te INNER JOIN tournament as t ON t.season_id = te.season_id WHERE te.id = %s AND t.id = %s""",(data.champion_id, data.tournament_id))
+    result = db.fetch_one("""SELECT 1 FROM team as te INNER JOIN team_participations as tp ON tp.team_id = te.id INNER JOIN tournament as t ON t.season_id = tp.season_id WHERE te.id = %s AND t.id = %s""",(data.champion_id, data.tournament_id))
 
     if not result:
         raise HTTPException(status_code=400, detail="The team cannot be the champion of the competition.")

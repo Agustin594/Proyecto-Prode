@@ -1,8 +1,13 @@
 from sofascoreclient import Sofascore 
 from datetime import datetime
 
-def normalize_match(raw: dict, internal_season_id: int, internal_home_team_id: int, internal_away_team_id: int, internal_qualified_team_id: int) -> dict:
-    play_off = raw.get('roundInfo', {}).get('name') != None
+def normalize_match(raw: dict, internal_season_id: int, internal_home_team_id: int, internal_away_team_id: int, internal_qualified_team_id: int, internal_refered_match: int) -> dict:
+    if raw.get('roundInfo', {}).get('name') == None:
+        match_type = 'points'
+    elif raw["previousLegEventId"] != None:
+        match_type = 'secondleg'
+    else: # single or firstleg (then it changes)
+        match_type = 'single'
 
     return {
         "external_id": raw["id"],
@@ -10,9 +15,14 @@ def normalize_match(raw: dict, internal_season_id: int, internal_home_team_id: i
         "date": datetime.fromtimestamp(raw["startTimestamp"]),
         "home_team_id": internal_home_team_id,
         "away_team_id": internal_away_team_id,
-        "home_goals": raw.get("homeScore", {}).get("current"),
-        "away_goals": raw.get("awayScore", {}).get("current"),
-        "play_off": play_off,
+        "home_goals": raw.get("homeScore", {}).get("normaltime"),
+        "away_goals": raw.get("awayScore", {}).get("normaltime"),
+        "overtime_home_goals": raw.get("homeScore", {}).get("overtime"),
+        "overtime_away_goals": raw.get("awayScore", {}).get("overtime"),
+        "penalties_home_goals": raw.get("homeScore", {}).get("penalties"),
+        "penalties_away_goals": raw.get("awayScore", {}).get("penalties"),
         "qualified_team_id": internal_qualified_team_id,
-        "status": raw["status"]["type"]
+        "status": raw["status"]["type"],
+        "match_type": match_type,
+        "refered_match": internal_refered_match
     }
