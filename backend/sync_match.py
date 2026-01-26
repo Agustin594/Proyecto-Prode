@@ -2,7 +2,7 @@ from sofascoreclient import Sofascore
 from match import normalize_match
 
 def upsert_match(db, match):
-    return db.execute("""
+    return db.fetch_one("""
         INSERT INTO match_ (
             external_id,
             season_id,
@@ -43,7 +43,7 @@ def upsert_match(db, match):
             away_goals = EXCLUDED.away_goals,
             date = EXCLUDED.date,
             qualified_team_id = EXCLUDED.qualified_team_id,
-            status = EXCLUDED.status
+            status = EXCLUDED.status,
             overtime_home_goals = EXCLUDED.overtime_home_goals,
             overtime_away_goals = EXCLUDED.overtime_away_goals,
             penalties_home_goals = EXCLUDED.penalties_home_goals,
@@ -51,7 +51,7 @@ def upsert_match(db, match):
             match_type = EXCLUDED.match_type,
             referenced_match = EXCLUDED.referenced_match
         RETURNING id
-    """, match)
+    """, match)[0]
 
 def finished_match(prev_status, new_status):
     return prev_status != "finished" and new_status == "finished"
@@ -62,7 +62,7 @@ def get_internal_season_id(db, season_id):
 def get_internal_team_id(db, team_id: int) -> int:
     return db.fetch_one("SELECT id FROM team WHERE external_id = %s",(team_id,))[0]
 
-def get_internal_refered_match(db, match_id: int) -> int:
+def get_internal_referenced_match(db, match_id: int | None) -> int:
     if match_id == None:
         return None
     result = db.fetch_one("SELECT id FROM match_ WHERE external_id = %s",(match_id,))
@@ -77,7 +77,7 @@ def get_matches_id(db, season_id):
 def link_first_and_secondleg(db, secondleg_id, first_leg_id):
     db.execute("""
         UPDATE match_
-        SET refered_match = %s, match_type = 'firstleg', qualified_team_id = NULL
+        SET referenced_match = %s, match_type = 'firstleg', qualified_team_id = NULL
         WHERE id = %s
     """, (secondleg_id, first_leg_id))
 
@@ -98,10 +98,10 @@ def sync_matches(db, competition_id):
     for match in matches:
         internal_home_team_id = get_internal_team_id(db, match["homeTeam"]["id"])
         internal_away_team_id = get_internal_team_id(db, match["awayTeam"]["id"])
-        internal_refered_match = get_internal_refered_match(db, match["previousLegEventId"])
+        internal_referenced_match = get_internal_referenced_match(db, match.get("previousLegEventId"))
         play_off = match.get('roundInfo', {}).get('name') != None
         if play_off:
-            if match["previousLegEventId"] != None: # secondleg
+            if match.get("previousLegEventId") != None: # secondleg
                 if match["aggregatedWinnerCode"] == 1:
                     internal_qualified_team_id = internal_home_team_id
                 else:
@@ -114,13 +114,13 @@ def sync_matches(db, competition_id):
         else:
             internal_qualified_team_id = None
 
-        map_match = normalize_match(match, internal_season_id, internal_home_team_id, internal_away_team_id, internal_qualified_team_id, internal_refered_match)
+        map_match = normalize_match(match, internal_season_id, internal_home_team_id, internal_away_team_id, internal_qualified_team_id, internal_referenced_match)
 
         if not play_off:
             priority_matches.append(map_match) 
-        elif match["previousLegEventId"] == None:
+        elif match.get("previousLegEventId") == None:
             priority_matches.append(map_match)
-        elif internal_refered_match in matches_id:
+        elif internal_referenced_match in matches_id:
             priority_matches.append(map_match)
         else:
             matches_on_hold.append(map_match)
@@ -135,8 +135,8 @@ def sync_matches(db, competition_id):
 
         internal_match_id = upsert_match(db, match)
 
-        if match["refered_match"] is not None:
-            link_first_and_secondleg(db, internal_match_id, match["refered_match"])
+        if match["referenced_match"] != None:
+            link_first_and_secondleg(db, internal_match_id, match["referenced_match"])
 
         if existing and finished_match(existing[0], match["status"]) and match["match_type"] == 'single':
             single_matches.append(match)
@@ -151,8 +151,9 @@ def sync_matches(db, competition_id):
 
         internal_match_id = upsert_match(db, match)
 
-        if match["refered_match"] is not None:
-            link_first_and_secondleg(db, internal_match_id, match["refered_match"])
+        if match["referenced_match"] != None:
+            print(internal_match_id)
+            link_first_and_secondleg(db, internal_match_id, match["referenced_match"])
 
         if existing and finished_match(existing[0], match["status"]):
             evaluate_match_predictions(db, match)

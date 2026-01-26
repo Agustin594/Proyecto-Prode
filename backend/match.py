@@ -1,10 +1,10 @@
 from sofascoreclient import Sofascore 
 from datetime import datetime
 
-def normalize_match(raw: dict, internal_season_id: int, internal_home_team_id: int, internal_away_team_id: int, internal_qualified_team_id: int, internal_refered_match: int) -> dict:
+def normalize_match(raw: dict, internal_season_id: int, internal_home_team_id: int, internal_away_team_id: int, internal_qualified_team_id: int, internal_referenced_match: int) -> dict:
     if raw.get('roundInfo', {}).get('name') == None:
         match_type = 'points'
-    elif raw["previousLegEventId"] != None:
+    elif raw.get("previousLegEventId") != None:
         match_type = 'secondleg'
     else: # single or firstleg (then it changes)
         match_type = 'single'
@@ -24,5 +24,5 @@ def normalize_match(raw: dict, internal_season_id: int, internal_home_team_id: i
         "qualified_team_id": internal_qualified_team_id,
         "status": raw["status"]["type"],
         "match_type": match_type,
-        "refered_match": internal_refered_match
+        "referenced_match": internal_referenced_match
     }

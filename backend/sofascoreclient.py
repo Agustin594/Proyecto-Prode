@@ -378,5 +378,3 @@ def main():
     season = client.get_current_season(7)
 
     print(client.get_matches(7, season))
-
-main()

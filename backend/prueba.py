@@ -11,12 +11,12 @@ def main():
 
     current_competitions = [7, 8, 17, 23, 34, 35, 155, 325, 384]
 
-    for competition in current_competitions:
+    for competition in competitions:
         sync_matches(db, competition)
 
 def main2():
     db= Database()
 
-    sync_matches(db, 155) 
+    sync_matches(db, 7) 
 
-main()
+main2()

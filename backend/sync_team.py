@@ -2,7 +2,7 @@ from sofascoreclient import Sofascore
 from team import normalize_team, normalize_team_participation
 
 def insert_team(db, team):
-    return db.execute("""
+    return db.fetch_one("""
         INSERT INTO team (
             external_id,
             name,
@@ -14,7 +14,7 @@ def insert_team(db, team):
             %(national)s
         )
         RETURNING id
-    """, team)
+    """, team)[0]
 
 def insert_team_participation(db, team_participation):
     db.execute("""
@@ -45,7 +45,7 @@ def sync_teams(db, competition_id):
         internal_id = db.fetch_one("""SELECT id FROM team WHERE external_id = %s""",(team["id"],))
 
         if not internal_id:
-            map_team = normalize_team(team, internal_season_id)
+            map_team = normalize_team(team)
             internal_id = insert_team(db, map_team)
         else:
             internal_id = internal_id[0]
