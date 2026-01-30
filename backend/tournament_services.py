@@ -6,7 +6,7 @@ from fastapi import HTTPException
 def create_tournament(user_id, data):
     db = Database()
 
-    result = db.fetch_one("""SELECT 1 FROM competition WHERE id = %s""", (data.competition_id))
+    result = db.fetch_one("""SELECT 1 FROM competition WHERE id = %s""", (data.competition_id,))
 
     if not result:
         raise HTTPException(status_code=400, detail="That competition does not exist.")
@@ -161,10 +161,24 @@ def get_tournament_matches(tournament_id, user_id):
             "home_goals": r[4],
             "away_goals": r[5],
             "status": r[6],
+            "home_team_image": r[7],
+            "away_team_image": r[8],
             "prediction": {
-                "home_goals": r[7],
-                "away_goals": r[8]
-            } if r[7] is not None else None
+                "home_goals": r[9],
+                "away_goals": r[10]
+            } if r[9] is not None else None,
+            "referenced": {
+                "home_goals": r[11],
+                "away_goals": r[12],
+                "status": r[13]
+            } if r[11] is not None else None,
+            "match_type": r[14],
+            "overtime_home_goals": r[15],
+            "overtime_away_goals": r[16],
+            "penalties_home_goals": r[17],
+            "penalties_away_goals": r[18],
+            "home_team_id": r[19],
+            "away_team_id": r[20]
         })
 
     return matches
@@ -205,6 +219,49 @@ def update_match_prediction(tournament_id, match_id, data, user_id):
     
     if data.home_goals < 0 or data.away_goals < 0:
         raise HTTPException(status_code=400, detail="Goals cannot be negative.")
+    
+    # Qualified team verification
+
+    if data.qualified_team_id != None:
+        result = db.fetch_one("""SELECT 
+                                    match_type,
+                                    home_team_id,
+                                    away_team_id,
+                                    referenced_match 
+                                FROM match_ as m 
+                                WHERE m.id = %s""",(match_id,))
+        
+        if result[0] == 'single':
+            if data.home_goals > data.away_goals and data.qualified_team_id != result[1]:
+                raise HTTPException(status_code=400, detail="Incorrect qualified team.")
+            elif data.away_goals > data.home_goals and data.qualified_team_id != result[2]:
+                raise HTTPException(status_code=400, detail="Incorrect qualified team.")
+            elif data.qualified_team_id != result[1] and data.qualified_team_id != result[2]:
+                raise HTTPException(status_code=400, detail="Incorrect qualified team.")
+        elif result[0] == 'secondleg':
+            firstleg_prediction = db.fetch_one("""SELECT 
+                                    home_goals,
+                                    away_goals
+                                FROM match_prediction 
+                                WHERE match_id = %s AND tournament_id = %s AND user_id = %s""",(result[3], tournament_id, user_id))
+            
+            if firstleg_prediction[0] == None or firstleg_prediction[1] == None:
+                if data.home_goals > data.away_goals and data.qualified_team_id != result[1]:
+                    raise HTTPException(status_code=400, detail="Incorrect qualified team.")
+                elif data.away_goals > data.home_goals and data.qualified_team_id != result[2]:
+                    raise HTTPException(status_code=400, detail="Incorrect qualified team.")
+                elif data.qualified_team_id != result[1] and data.qualified_team_id != result[2]:
+                    raise HTTPException(status_code=400, detail="Incorrect qualified team.")
+            else:
+                total_home_goals = data.home_goals + firstleg_prediction[1]
+                total_away_goals = data.away_goals + firstleg_prediction[0]
+
+                if total_home_goals > total_away_goals and data.qualified_team_id != result[1]:
+                    raise HTTPException(status_code=400, detail="Incorrect qualified team.")
+                elif total_away_goals > total_home_goals and data.qualified_team_id != result[2]:
+                    raise HTTPException(status_code=400, detail="Incorrect qualified team.")
+                elif data.qualified_team_id != result[1] and data.qualified_team_id != result[2]:
+                    raise HTTPException(status_code=400, detail="Incorrect qualified team.")
 
     return tr.upsert_match_prediction(tournament_id, match_id, data, user_id)
 
@@ -221,9 +278,15 @@ def get_teams(tournament_id):
     return teams
 
 def get_champion_id_prediction(tournament_id, user_id):
-    return {
-        "champion_id": tr.get_champion_id_prediction(tournament_id, user_id)
-    }
+    result = tr.get_champion_id_prediction(tournament_id, user_id)
+    if result == None:
+        return {
+            "champion_id": None
+        }
+    else:
+        return {
+            "champion_id": result[0]
+        }
 
 def isRegistered(user_id, tournament_id):
     db = Database()

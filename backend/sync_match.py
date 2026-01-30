@@ -18,7 +18,9 @@ def upsert_match(db, match):
             penalties_home_goals,
             penalties_away_goals,
             match_type,
-            referenced_match
+            referenced_match,
+            round,
+            round_name
         )
         VALUES (
             %(external_id)s,
@@ -35,7 +37,9 @@ def upsert_match(db, match):
             %(penalties_home_goals)s,
             %(penalties_away_goals)s,
             %(match_type)s,
-            %(referenced_match)s
+            %(referenced_match)s,
+            %(round)s,
+            %(round_name)s
         )
         ON CONFLICT (external_id)
         DO UPDATE SET
@@ -49,7 +53,9 @@ def upsert_match(db, match):
             penalties_home_goals = EXCLUDED.penalties_home_goals,
             penalties_away_goals = EXCLUDED.penalties_away_goals,
             match_type = EXCLUDED.match_type,
-            referenced_match = EXCLUDED.referenced_match
+            referenced_match = EXCLUDED.referenced_match,
+            round = EXCLUDED.round,
+            round_name = EXCLUDED.round_name
         RETURNING id
     """, match)[0]
 
@@ -141,7 +147,7 @@ def sync_matches(db, competition_id):
         if existing and finished_match(existing[0], match["status"]) and match["match_type"] == 'single':
             single_matches.append(match)
         elif existing and finished_match(existing[0], match["status"]):
-            evaluate_match_predictions(db, match)
+            evaluate_match_predictions(db, match, internal_match_id)
 
     for match in matches_on_hold:
         existing = db.fetch_one(
@@ -152,14 +158,13 @@ def sync_matches(db, competition_id):
         internal_match_id = upsert_match(db, match)
 
         if match["referenced_match"] != None:
-            print(internal_match_id)
             link_first_and_secondleg(db, internal_match_id, match["referenced_match"])
 
         if existing and finished_match(existing[0], match["status"]):
-            evaluate_match_predictions(db, match)
+            evaluate_match_predictions(db, match, internal_match_id)
 
     for match in single_matches:
-        evaluate_match_predictions(db, match)
+        evaluate_match_predictions(db, match, internal_match_id)
 
 def calculate_points(match, pred_h, pred_a, pred_qualified_team):
     points = 0
@@ -187,22 +192,22 @@ def calculate_points(match, pred_h, pred_a, pred_qualified_team):
 
     return points
 
-def evaluate_match_predictions(db, match):
+def evaluate_match_predictions(db, match, internal_match_id):
     preds = db.fetch_all("""
         SELECT id, home_goals, away_goals, user_id, tournament_id, qualified_team_id
         FROM match_prediction
         WHERE match_id = %s AND evaluated = FALSE
-    """, (match["id"],))
+    """, (internal_match_id,))
 
     for p in preds:
-        points = calculate_points(match, p["home_goals"], p["away_goals"], p["qualified_team_id"])
+        points = calculate_points(match, p[1], p[2], p[5])
 
         # mark prediction 
         db.execute("""
             UPDATE match_prediction
             SET evaluated = TRUE
             WHERE id = %s
-        """, (p["id"]))
+        """, (p[0],))
 
         # add to ranking
         db.execute("""
@@ -210,4 +215,4 @@ def evaluate_match_predictions(db, match):
             VALUES (%s, %s, %s)
             ON CONFLICT (user_id, tournament_id)
             DO UPDATE SET points = score.points + EXCLUDED.points
-        """, (p["user_id"], p["tournament_id"], points))
+        """, (p[3], p[4], points))

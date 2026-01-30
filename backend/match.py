@@ -24,5 +24,7 @@ def normalize_match(raw: dict, internal_season_id: int, internal_home_team_id: i
         "qualified_team_id": internal_qualified_team_id,
         "status": raw["status"]["type"],
         "match_type": match_type,
-        "referenced_match": internal_referenced_match
+        "referenced_match": internal_referenced_match,
+        "round": raw.get('roundInfo', {}).get('round'),
+        "round_name": raw.get('roundInfo', {}).get('name')
     }

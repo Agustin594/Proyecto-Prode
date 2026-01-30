@@ -376,5 +376,11 @@ def main():
     client = Sofascore()
 
     season = client.get_current_season(7)
+    matches = client.get_matches(7, season)
 
-    print(client.get_matches(7, season))
+    matches_for_points = []
+    for match in matches:
+        if match.get('roundInfo', {}).get('round') != None and match.get('roundInfo', {}).get('round') > 3:
+            matches_for_points.append(match)
+    
+    print(matches_for_points)

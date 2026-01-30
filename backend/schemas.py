@@ -21,3 +21,4 @@ class SpecialPrediction(BaseModel):
 class MatchPrediction(BaseModel):
     home_goals: int
     away_goals: int
+    qualified_team_id: int | None

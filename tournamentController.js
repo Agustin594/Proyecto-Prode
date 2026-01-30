@@ -82,6 +82,7 @@ async function initTournament(tournamentId) {
         setupAbandonButton(tournamentId);
         loadTournamentMatchTable(tournamentId);
         setupMatchPrediction(tournamentId);
+        initChooseTeamEvents();
     } else {
         document.getElementById("matches").hidden = true;
         document.getElementById("scorers").hidden = true;
@@ -118,7 +119,7 @@ function setupTournamentFormHandler()
         clearPasswordError(form);
         const tournament = getFormData();
 
-        if(!tournament.competition_id || !tournament.participant_limit || !tournament.entry_price || (!tournament.password && !tournament.public)){
+        if(tournament.competition_id == null || tournament.participant_limit == null || tournament.entry_price == null || (tournament.password == null && tournament.public == null)){
             createErrorMessage("tournamentForm", "All fields must be filled in.");
             return;
         }
@@ -472,104 +473,370 @@ async function loadTournamentMatchTable(tournamentId) {
 
 function renderMatchTable(matches) 
 {
-    const tbody = document.getElementById('match-table');
-    tbody.replaceChildren();
+    const matchTable = document.getElementById('matchTable');
+    matchTable .replaceChildren();
 
+    let lastDate = null;
     matches.forEach(m => 
     {
-        const tr = document.createElement('tr');
+        if(m.date.split("T")[0] !== lastDate){
+            lastDate = m.date.split("T")[0];
 
-        tr.appendChild(createCell(m.date));
-        tr.appendChild(createCell(m.home_team_name));
-        
-        if(m.status === "finished"){
-            tr.appendChild(createCell(m.home_goals));
-        } else {
-            tr.appendChild(createCell(""));
-        }
+            const scheduleDate = document.createElement("div");
+            scheduleDate.classList.add("schedule-date");
 
-        createInputCells(tr, m)
+            const dateP = document.createElement("p");
+            dateP.textContent = m.date.split("T")[0];
 
-        if(m.status === "finished"){
-            tr.appendChild(createCell(m.away_goals));
-        } else {
-            tr.appendChild(createCell(""));
+            scheduleDate.appendChild(dateP);
+            matchTable.appendChild(scheduleDate);
         }
         
-        tr.appendChild(createCell(m.away_team_name));
+        // ===== Contenedor data =====
+        const scheduleData = document.createElement("div");
+        scheduleData.classList.add("schedule-data");
+        scheduleData.dataset.type = m.match_type;
 
-        tr.appendChild(createPredictCell(m));
+        // ===== Partido =====
+        const scheduleMatchData = document.createElement("div");
+        scheduleMatchData.classList.add("schedule-match-data");
 
-        tbody.appendChild(tr);
+        // Hora
+        const hourDiv = document.createElement("div");
+        hourDiv.classList.add("hour");
+
+        const hourP = document.createElement("p");
+        const fecha = new Date(m.date);
+
+        const hora = fecha.toLocaleTimeString("es-AR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+        });
+
+        hourP.textContent = hora;
+
+        hourDiv.appendChild(hourP);
+        scheduleMatchData.appendChild(hourDiv);
+
+        // ===== Resultado =====
+        const scheduleDataResult = document.createElement("div");
+        scheduleDataResult.classList.add("schedule-data-result");
+
+        // --- Equipo local ---
+        const homeTeam = document.createElement("div");
+        homeTeam.classList.add("schedule-home-team");
+
+        const homeImg = document.createElement("img");
+        homeImg.setAttribute("src", `image/Logos/${m.home_team_image}.png`);
+        homeImg.setAttribute("alt", "");
+
+        const homeName = document.createElement("p");
+        homeName.textContent = m.home_team_name;
+
+        homeTeam.appendChild(homeImg);
+        homeTeam.appendChild(homeName);
+
+        // --- Resultados ---
+        const scheduleResults = document.createElement("div");
+        scheduleResults.classList.add("schedule-results");
+
+        // Local
+        const homeResult = document.createElement("div");
+        homeResult.classList.add("schedule-home-result");
+
+        if(m.penalties_home_goals != null) {
+            const penaltiesHomeGoals = document.createElement("p");
+            penaltiesHomeGoals.textContent = `(${m.penalties_home_goals})`;
+            homeResult.appendChild(penaltiesHomeGoals);
+        }
+
+        const homeGoals = document.createElement("p");
+        if(m.overtime_home_goals != null)
+            homeGoals.textContent = m.home_goals + m.overtime_home_goals;
+        else
+            homeGoals.textContent = m.home_goals;
+
+        homeResult.appendChild(homeGoals);
+
+        // Predicción
+        const predictDiv = document.createElement("div");
+        predictDiv.classList.add("schedule-predict");
+
+        const inputHome = document.createElement("input");
+        const inputAway = document.createElement("input");
+        const matchStart = new Date(m.date);
+        const now = new Date();
+
+        inputHome.type = "number";
+        inputHome.min = 0;
+        inputHome.id = `home-input-match-${m.id}`;
+        inputHome.classList.add("home-goals");
+        inputHome.dataset.teamId = m.home_team_id;
+        inputAway.type = "number";
+        inputAway.min = 0;
+        inputAway.id = `away-input-match-${m.id}`;
+        inputAway.classList.add("away-goals");
+        inputAway.dataset.teamId = m.away_team_id;
+
+        if(m.match_type === 'secondleg') {
+            inputHome.dataset.firstleg = m.referenced?.home_goals ?? null;
+            inputAway.dataset.firstleg = m.referenced?.away_goals ?? null;
+        }
+
+        if(m.prediction) {
+            inputHome.value = m.prediction.home_goals;
+            inputAway.value = m.prediction.away_goals;       
+        }
+        if (now >= matchStart) {
+            inputHome.disabled = true;
+            inputAway.disabled = true;
+            inputHome.classList.add("locked");
+            inputAway.classList.add("locked");
+        }
+        if (m.match_type === 'secondleg' && m.referenced?.status != 'finished') {
+            inputHome.disabled = true;
+            inputAway.disabled = true;
+            inputHome.classList.add("locked");
+            inputAway.classList.add("locked");
+        }
+
+        predictDiv.appendChild(inputHome);
+        predictDiv.appendChild(inputAway);
+
+        // Visitante
+        const awayResult = document.createElement("div");
+        awayResult.classList.add("schedule-away-result");
+
+        const awayGoals = document.createElement("p");
+        if(m.overtime_away_goals != null)
+            awayGoals.textContent = m.away_goals + m.overtime_away_goals;
+        else
+            awayGoals.textContent = m.away_goals;
+        awayResult.appendChild(awayGoals);
+
+        if(m.penalties_away_goals != null) {
+            const penaltiesAwayGoals = document.createElement("p");
+            penaltiesAwayGoals.textContent = `(${m.penalties_away_goals})`;
+            awayResult.appendChild(penaltiesAwayGoals);
+        }
+
+        // Armar resultados
+        scheduleResults.appendChild(homeResult);
+        scheduleResults.appendChild(predictDiv);
+        scheduleResults.appendChild(awayResult);
+
+        // --- Equipo visitante ---
+        const awayTeam = document.createElement("div");
+        awayTeam.classList.add("schedule-away-team");
+
+        const awayName = document.createElement("p");
+        awayName.textContent = m.away_team_name;
+
+        const awayImg = document.createElement("img");
+        awayImg.setAttribute("src", `image/Logos/${m.away_team_image}.png`);
+        awayImg.setAttribute("alt", "");
+
+        awayTeam.appendChild(awayName);
+        awayTeam.appendChild(awayImg);
+
+        // Armar data result
+        scheduleDataResult.appendChild(homeTeam);
+        scheduleDataResult.appendChild(scheduleResults);
+        scheduleDataResult.appendChild(awayTeam);
+
+        // Confirmar
+        const confirmPredict = document.createElement("div");
+        confirmPredict.classList.add("confirm-predict");
+
+        const confirmIcon = document.createElement("i");
+        confirmIcon.classList.add("fa-solid", "fa-square-check");
+
+        confirmIcon.dataset.type = "predict";
+        confirmIcon.dataset.matchId = m.id;
+        if (now >= matchStart) {
+            confirmPredict.classList.add("hidden");
+        }
+
+        confirmPredict.appendChild(confirmIcon);
+
+        // Armar match
+        scheduleMatchData.appendChild(scheduleDataResult);
+        scheduleMatchData.appendChild(confirmPredict);
+
+        // ===== Playoff =====
+        const playoffPredict = document.createElement("div");
+        playoffPredict.classList.add("playoff-predict");
+        playoffPredict.classList.add("hidden");
+
+        // Texto
+        const predictData = document.createElement("div");
+        predictData.classList.add("predict-data");
+
+        const predictMessage = document.createElement("div");
+        predictMessage.classList.add("predict-message");
+
+        const predictText = document.createElement("p");
+        predictText.textContent = "¿Quién avanzará?";
+
+        predictMessage.appendChild(predictText);
+
+        const predictEdit = document.createElement("div");
+        predictEdit.classList.add("predict-edit");
+
+        const editIcon = document.createElement("i");
+        editIcon.classList.add("fa-regular", "fa-pen-to-square");
+
+        predictEdit.appendChild(editIcon);
+
+        predictData.appendChild(predictMessage);
+        predictData.appendChild(predictEdit);
+
+        // Elegir equipo
+        const chooseTeam = document.createElement("div");
+        chooseTeam.classList.add("choose-team");
+
+        const homeTeamPredict = document.createElement("div");
+        homeTeamPredict.classList.add("home-team-predict");
+        homeTeamPredict.dataset.teamId = m.home_team_id;
+
+        const homeTeamImg = document.createElement("img");
+        homeTeamImg.setAttribute("src", `image/Logos/${m.home_team_image}.png`);
+        homeTeamImg.setAttribute("alt", "");
+
+        homeTeamPredict.appendChild(homeTeamImg);
+
+        const awayTeamPredict = document.createElement("div");
+        awayTeamPredict.classList.add("away-team-predict");
+        awayTeamPredict.dataset.teamId = m.away_team_id;
+
+        const awayTeamImg2 = document.createElement("img");
+        awayTeamImg2.setAttribute("src", `image/Logos/${m.away_team_image}.png`);
+        awayTeamImg2.setAttribute("alt", "");
+
+        awayTeamPredict.appendChild(awayTeamImg2);
+
+        chooseTeam.appendChild(homeTeamPredict);
+        chooseTeam.appendChild(awayTeamPredict);
+
+        // Armar playoff
+        playoffPredict.appendChild(predictData);
+        playoffPredict.appendChild(chooseTeam);
+
+        // ===== Final =====
+        scheduleData.appendChild(scheduleMatchData);
+        scheduleData.appendChild(playoffPredict);
+        matchTable.appendChild(scheduleData);
+
+        updateAdvanceVisibility(scheduleData);
     });
 }
 
-function createInputCells(container, match) {
-    const matchStart = new Date(match.date);
-    const now = new Date();
-    const homeTd = document.createElement('td');
-    const awayTd = document.createElement('td');
-    const homeInput = document.createElement('input');
-    const awayInput = document.createElement('input');
-    homeInput.type = "number";
-    homeInput.min = 0;
-    homeInput.id = `home-input-match-${match.id}`;
-    awayInput.type = "number";
-    awayInput.min = 0;
-    awayInput.id = `away-input-match-${match.id}`;
-    if(match.prediction) {
-        homeInput.value = match.prediction.home_goals;
-        awayInput.value = match.prediction.away_goals;
+function updateAdvanceVisibility(matchEl) {
+    const type = matchEl.dataset.type;
+
+    const homeInput = matchEl.querySelector('.home-goals');
+    const awayInput = matchEl.querySelector('.away-goals');
+    const advanceBlock = matchEl.querySelector('.playoff-predict');
+    const chooseTeam = matchEl.querySelector('.choose-team');
+
+    clearSelectedTeam(chooseTeam);
+
+    let homeGoals = homeInput.value;
+    let awayGoals = awayInput.value;
+
+    if (homeGoals === '' || awayGoals === '') {
+        advanceBlock.classList.add('hidden');
+        return;
     }
-    if (now >= matchStart) {
-        homeInput.disabled = true;
-        awayInput.disabled = true;
-        homeInput.classList.add("locked");
-        awayInput.classList.add("locked");
+
+    homeGoals = Number(homeGoals);
+    awayGoals = Number(awayGoals);
+
+    let isDraw = false;
+
+    if (type === 'single') {
+        isDraw = homeGoals === awayGoals;
     }
-    homeTd.appendChild(homeInput);
-    awayTd.appendChild(awayInput);
-    container.appendChild(homeTd);
-    container.appendChild(awayTd);
+
+    if (type === 'secondleg') {
+        const firstHome = Number(homeInput.dataset.firstleg ?? 0);
+        const firstAway = Number(awayInput.dataset.firstleg ?? 0);
+
+        const totalHome = homeGoals + firstAway;
+        const totalAway = awayGoals + firstHome;
+
+        isDraw = totalHome === totalAway;
+    }
+
+    if (isDraw && (type === 'single' || type === 'secondleg')) {
+        advanceBlock.classList.remove('hidden');
+    } else {
+        advanceBlock.classList.add('hidden');
+    }
 }
 
-function createPredictCell(match) {
-    const matchStart = new Date(match.date);
-    const now = new Date();
-    const td = document.createElement("td");
-    const btn = document.createElement("button");
-    btn.dataset.type = "predict";
-    btn.textContent = "Predict";
-    btn.dataset.matchId = match.id;
-    if (now >= matchStart) {
-        btn.disabled = true;
-        btn.hidden = true;
+document.addEventListener('input', e => {
+    if (e.target.classList.contains('home-goals') || e.target.classList.contains('away-goals')) {
+        const matchEl = e.target.closest('.schedule-data');
+        if (matchEl) {
+            updateAdvanceVisibility(matchEl);
+        }
     }
-    td.appendChild(btn);
-    return td;
-}
+});
 
 function setupMatchPrediction(tournamentId){
     document.addEventListener("click", async (e) => {
         if(e.target.dataset.type === "predict") {
             const matchId = e.target.dataset.matchId;
-
+            const matchContainer = e.target.closest(".schedule-data");
+            const matchType = matchContainer.dataset.type;
             const prediction = getMatchPrediction(matchId);
 
-            if(!prediction.home_goals || !prediction.away_goals){
+            if(prediction.home_goals === null || prediction.away_goals === null){
                 return;
             }
 
-            if(prediction.home_goals < 0 && prediction.away_goals < 0){
+            if(prediction.home_goals < 0 || prediction.away_goals < 0){
                 return;
             }
+            
+            if (matchType === 'single') {
+                if (prediction.home_goals > prediction.away_goals) {
+                    prediction.qualified_team_id = document.getElementById(`home-input-match-${matchId}`).dataset.teamId;
+                } else if(prediction.home_goals < prediction.away_goals) {
+                    prediction.qualified_team_id = document.getElementById(`away-input-match-${matchId}`).dataset.teamId;
+                } else { // draw
+                    const div = matchContainer.querySelector(".team-selected");
+
+                    if (div != null && div != undefined) {
+                        prediction.qualified_team_id = div.dataset.teamId;
+                    }
+                }
+            } else if (matchType === 'secondleg') {
+                const totalHome = prediction.home_goals + Number(document.getElementById(`away-input-match-${matchId}`).dataset.firstleg);
+                const totalAway = prediction.away_goals + Number(document.getElementById(`home-input-match-${matchId}`).dataset.firstleg);
+
+                if (totalHome > totalAway) {
+                    prediction.qualified_team_id = document.getElementById(`home-input-match-${matchId}`).dataset.teamId;
+                } else if(totalHome < totalAway) {
+                    prediction.qualified_team_id = document.getElementById(`away-input-match-${matchId}`).dataset.teamId;
+                } else {
+                    const div = matchContainer.querySelector(".team-selected");
+
+                    if (div != null && div != undefined) {
+                        prediction.qualified_team_id = div.dataset.teamId;
+                    }
+                }
+            }
+            
 
             try { 
                 await tournamentAPI.updateWithPath(`${tournamentId}/match/${matchId}/prediction`, prediction);
             }
             catch (err) {
                 console.log("ERROR: ", err);
-                alert("It couldn't register you into the tournament.");
+                alert("It couldn't register your prediction.");
             }
         }
     })
@@ -578,8 +845,54 @@ function setupMatchPrediction(tournamentId){
 function getMatchPrediction(matchId){
     return {
         home_goals: parseInt(document.getElementById(`home-input-match-${matchId}`).value.trim(), 10),
-        away_goals: parseInt(document.getElementById(`away-input-match-${matchId}`).value.trim(), 10)
+        away_goals: parseInt(document.getElementById(`away-input-match-${matchId}`).value.trim(), 10),
+        qualified_team_id: null
         };
+}
+
+function initChooseTeamEvents() {
+    document.addEventListener("click", (e) => {
+        const teamDiv = e.target.closest(".home-team-predict, .away-team-predict");
+        if (!teamDiv) return;
+
+        const chooseTeam = teamDiv.closest(".choose-team");
+        if (!chooseTeam) return;
+
+        selectTeam(teamDiv);
+    });
+}
+
+function selectTeam(teamDiv) {
+    const chooseTeam = teamDiv.closest(".choose-team");
+    if (!chooseTeam) return;
+
+    const allTeams = chooseTeam.querySelectorAll(
+        ".home-team-predict, .away-team-predict"
+    );
+
+    allTeams.forEach(team => {
+        team.classList.remove("team-selected", "team-unselected");
+    });
+
+    allTeams.forEach(team => {
+        if (team === teamDiv) {
+            team.classList.add("team-selected");
+        } else {
+            team.classList.add("team-unselected");
+        }
+    });
+}
+
+function clearSelectedTeam(chooseTeam) {
+    if (!chooseTeam) return;
+
+    const allTeams = chooseTeam.querySelectorAll(
+        ".home-team-predict, .away-team-predict"
+    );
+
+    allTeams.forEach(team => {
+        team.classList.remove("team-selected", "team-unselected");
+    });
 }
 
 async function loadTournamentGoalscorerTable(tournamentId) {

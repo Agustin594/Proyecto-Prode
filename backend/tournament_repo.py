@@ -152,7 +152,7 @@ def fetch_matches(tournament_id, user_id):
     db = Database()
 
     query = """
-        SELECT 
+        SELECT  
             m.id,
             m.date,
             th.name AS home_team_name,
@@ -160,8 +160,20 @@ def fetch_matches(tournament_id, user_id):
             m.home_goals,
             m.away_goals,
             m.status,
+            th.image_name AS home_team_image,
+            ta.image_name AS away_team_image,
             p.home_goals AS predicted_home_goals,
-            p.away_goals AS predicted_away_goals
+            p.away_goals AS predicted_away_goals,
+            rm.home_goals AS referenced_home_goals,
+            rm.away_goals AS referenced_away_goals,
+            rm.status as referenced_status,
+            m.match_type,
+            m.overtime_home_goals,
+            m.overtime_away_goals,
+            m.penalties_home_goals,
+            m.penalties_away_goals,
+            th.id as home_team_id,
+            ta.id as away_team_id
         FROM tournament t
         JOIN match_ m 
             ON m.season_id = t.season_id
@@ -171,8 +183,10 @@ def fetch_matches(tournament_id, user_id):
             ON m.away_team_id = ta.id
         LEFT JOIN match_prediction p 
             ON p.match_id = m.id
-        AND p.tournament_id = t.id
-        AND p.user_id = %s
+            AND p.tournament_id = t.id
+            AND p.user_id = %s
+        LEFT JOIN match_ rm
+            ON rm.id = m.referenced_match
         WHERE t.id = %s
         ORDER BY m.date ASC;
     """
@@ -287,16 +301,18 @@ def upsert_match_prediction(tournament_id, match_id, data, user_id):
             tournament_id,
             match_id,
             home_goals,
-            away_goals
+            away_goals,
+            qualified_team_id
         )
-        VALUES (%s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s)
         ON CONFLICT (user_id, tournament_id, match_id)
         DO UPDATE SET
             home_goals = EXCLUDED.home_goals,
-            away_goals = EXCLUDED.away_goals
+            away_goals = EXCLUDED.away_goals,
+            qualified_team_id = EXCLUDED.qualified_team_id
     """
 
-    db.execute(query, (user_id, tournament_id, match_id, data.home_goals, data.away_goals))
+    db.execute(query, (user_id, tournament_id, match_id, data.home_goals, data.away_goals, data.qualified_team_id))
 
 def get_champion_id_prediction(tournament_id, user_id):
     db = Database()
@@ -307,4 +323,4 @@ def get_champion_id_prediction(tournament_id, user_id):
         WHERE tournament_id = %s AND user_id = %s
     """
 
-    return db.fetch_one(query,(tournament_id,user_id))[0]
+    return db.fetch_one(query,(tournament_id,user_id))

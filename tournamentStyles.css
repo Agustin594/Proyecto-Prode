@@ -17,13 +17,6 @@ body {
     background-color: rgb(231, 227, 227);
 }
 
-.locked {
-    background-color: #eee;
-    padding: 2px;
-    outline: none;
-    border: none;
-}
-
 .modal {
   position: fixed;
   inset: 0;
@@ -193,4 +186,243 @@ body {
 
 .delete:hover {
   background-color: rgb(156, 0, 0, 0.8);
+}
+
+/***********************************************************************************/
+
+/* Match list in the tournament */
+
+.match-table {
+    background: #fff;
+    width: 50%;
+    border-radius: 16px;
+    padding: 16px;
+    margin: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,.1);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-date {
+  width: 100%;
+  text-align: center;
+}
+
+.schedule-date:not(:first-child) {
+  margin: 10px 0 0;
+  padding-top: 5px;
+  border-top: 1px solid rgb(100, 100, 100);
+}
+
+.schedule-date p {
+  font-size: 14px;
+  color: #4d4d4d;
+  margin: 0;
+}
+
+.schedule-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-match-data {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.hour {
+  width: 40px;
+  border-right: 1px solid lightgray;
+}
+
+.hour p {
+  font-size: 13px;
+  color: #4d4d4d;
+  margin-right: 5px;
+}
+
+.schedule-data-result {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 0 5px;
+}
+
+.schedule-home-team, .schedule-away-team {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 140px;
+}
+
+.schedule-home-team {
+  justify-content: start;
+}
+
+.schedule-away-team {
+  justify-content: end;
+}
+
+.schedule-home-team img, .schedule-away-team img {
+  width: 40px;
+  height: 40px;
+}
+
+.schedule-home-team p, .schedule-away-team p {
+  font-size: 15px;
+  color: #3a3a3a;
+  margin: 0;
+}
+
+.schedule-away-team p {
+  text-align: right;
+}
+
+.schedule-home-team img {
+  margin-right: 5px;
+}
+
+.schedule-away-team img {
+  margin-left: 5px;
+}
+
+.schedule-results {
+  display: flex;
+  flex-direction: row;
+}
+
+.schedule-home-result, .schedule-away-result {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0 2px;
+}
+
+.schedule-home-result p, .schedule-away-result p {
+  font-size: 15px;
+  color: #3a3a3a;
+  margin: 0 1px;
+}
+
+.winner p {
+  font-weight: 700;
+}
+
+.schedule-predict {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.schedule-predict input {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  margin: 0 2px;
+  color: #3a3a3a;
+}
+
+.schedule-predict input::-webkit-inner-spin-button, 
+.schedule-predict input::-webkit-outer-spin-button {
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+.playoff-predict {
+  display: flex;
+  flex-direction: column;
+}
+
+.predict-data {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+}
+
+.predict-data p {
+  font-size: 15px;
+  color: #3a3a3a;
+  margin: 0;
+}
+
+.predict-data i {
+  font-size: 15px;
+  color: #3a3a3a;
+}
+
+.choose-team {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 5px 0;
+}
+
+.home-team-predict, .away-team-predict {
+  width: 48%;
+  border-radius: 20px;
+  border: 1px solid lightgray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.home-team-predict img, .away-team-predict img {
+  width: 25px
+}
+
+.home-team-predict:hover, .away-team-predict:hover {
+  background-color: #d6d6d6;
+}
+
+.confirm-predict {
+  border-left: 1px solid lightgray;
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.confirm-predict i {
+  font-size: 25px;
+  margin: 10px 0 10px 5px;
+  color: #045c2a;
+  cursor: pointer;
+}
+
+.confirm-predict i:hover {
+  color: #002e14;
+}
+
+.locked {
+    background-color: #eee;
+    padding: 2px;
+    outline: none;
+    border: none;
+}
+
+.team-selected {
+  border-color: #045c2a;
+}
+
+.team-unselected {
+  border-color: rgb(245, 24, 24);
+}
+
+/* HIDDEN */
+
+[hidden] {
+  display: none !important;
+}
+
+.hidden {
+  display: none;
 }
