@@ -20,7 +20,8 @@ def upsert_match(db, match):
             match_type,
             referenced_match,
             round,
-            round_name
+            round_name,
+            order_index
         )
         VALUES (
             %(external_id)s,
@@ -39,7 +40,8 @@ def upsert_match(db, match):
             %(match_type)s,
             %(referenced_match)s,
             %(round)s,
-            %(round_name)s
+            %(round_name)s,
+            %(order_index)s
         )
         ON CONFLICT (external_id)
         DO UPDATE SET
@@ -55,7 +57,8 @@ def upsert_match(db, match):
             match_type = EXCLUDED.match_type,
             referenced_match = EXCLUDED.referenced_match,
             round = EXCLUDED.round,
-            round_name = EXCLUDED.round_name
+            round_name = EXCLUDED.round_name,
+            order_index = EXCLUDED.order_index
         RETURNING id
     """, match)[0]
 
