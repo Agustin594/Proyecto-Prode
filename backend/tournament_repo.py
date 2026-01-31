@@ -173,7 +173,10 @@ def fetch_matches(tournament_id, user_id):
             m.penalties_home_goals,
             m.penalties_away_goals,
             th.id as home_team_id,
-            ta.id as away_team_id
+            ta.id as away_team_id,
+            m.round,
+            m.round_name,
+            m.order_index
         FROM tournament t
         JOIN match_ m 
             ON m.season_id = t.season_id

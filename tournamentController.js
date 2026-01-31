@@ -473,262 +473,353 @@ async function loadTournamentMatchTable(tournamentId) {
 
 function renderMatchTable(matches) 
 {
-    const matchTable = document.getElementById('matchTable');
+    const matchesList = document.getElementById("matches");
+    
+    const matchTableHeader = document.createElement('div');
+    matchTableHeader.classList.add("match-table-header");
+
+    const prevIcon = document.createElement('i');
+    prevIcon.classList.add("fa-solid", "fa-chevron-left");
+
+    const title = document.createElement('p');
+    if (matches[0]?.round_name != null) {
+        title.textContent = matches[0]?.round_name;
+    } else {
+        title.textContent = `Fecha ${matches[0]?.round}`
+    }
+    
+    title.dataset.orderIndex = matches[0].order_index;
+
+    const nextIcon = document.createElement('i');
+    nextIcon.classList.add("fa-solid", "fa-chevron-right");
+
+    matchTableHeader.appendChild(prevIcon);
+    matchTableHeader.appendChild(title);
+    matchTableHeader.appendChild(nextIcon);
+
+    const matchTable = document.createElement('div');
+    matchTable.classList.add("match-table");
     matchTable .replaceChildren();
 
+    matchesList.appendChild(matchTableHeader);
+    matchesList.appendChild(matchTable);
+
+    prevIcon.addEventListener("click", () => {
+        const match = getPrevOrderIndex(matches, Number(title.dataset.orderIndex));
+        if(match != null) {
+            if (match.round_name != null) {
+                title.textContent = match.round_name;
+            } else {
+                title.textContent = `Fecha ${match.round}`
+            }
+            title.dataset.orderIndex = match.order_index;
+            createMatchList(matches, matchTable, Number(title.dataset.orderIndex));
+        }
+    })
+
+    nextIcon.addEventListener("click", () => {
+        const match = getNextOrderIndex(matches, Number(title.dataset.orderIndex));
+        if(match != null) {
+            if (match.round_name != null) {
+                title.textContent = match.round_name;
+            } else {
+                title.textContent = `Fecha ${match.round}`
+            }
+            title.dataset.orderIndex = match.order_index;
+            createMatchList(matches, matchTable, Number(title.dataset.orderIndex));
+        }
+    })
+
+    createMatchList(matches, matchTable, Number(title.dataset.orderIndex));
+}
+
+function getPrevOrderIndex(matches, currentOrderIndex) {
+    let prevOrderIndex = 0;
+    let prevMatch;
+    matches.forEach(m => {
+        if(m.order_index < currentOrderIndex && m.order_index > prevOrderIndex){
+            prevOrderIndex = m.order_index;
+            prevMatch = m;
+        }
+    })
+    if(prevOrderIndex === 0)
+        return null
+    else 
+        return prevMatch;
+}
+
+function getNextOrderIndex(matches, currentOrderIndex) {
+    let nextOrderIndex = 5000;
+    let nextMatch;
+    matches.forEach(m => {
+        if(m.order_index > currentOrderIndex && m.order_index < nextOrderIndex){
+            nextOrderIndex = m.order_index;
+            nextMatch = m;
+        }
+    })
+    if(nextOrderIndex === 5000)
+        return null
+    else 
+        return nextMatch;
+}
+
+function createMatchList(matches, container, orderIndex) {
     let lastDate = null;
+    container.replaceChildren();
     matches.forEach(m => 
     {
-        if(m.date.split("T")[0] !== lastDate){
-            lastDate = m.date.split("T")[0];
+        if(m.order_index === orderIndex){
+            if(m.date.split("T")[0] !== lastDate){
+                lastDate = m.date.split("T")[0];
 
-            const scheduleDate = document.createElement("div");
-            scheduleDate.classList.add("schedule-date");
+                const scheduleDate = document.createElement("div");
+                scheduleDate.classList.add("schedule-date");
 
-            const dateP = document.createElement("p");
-            dateP.textContent = m.date.split("T")[0];
+                const dateP = document.createElement("p");
+                dateP.textContent = m.date.split("T")[0];
 
-            scheduleDate.appendChild(dateP);
-            matchTable.appendChild(scheduleDate);
+                scheduleDate.appendChild(dateP);
+                container.appendChild(scheduleDate);
+            }
+            
+            // ===== Contenedor data =====
+            const scheduleData = document.createElement("div");
+            scheduleData.classList.add("schedule-data");
+            scheduleData.dataset.type = m.match_type;
+
+            // ===== Partido =====
+            const scheduleMatchData = document.createElement("div");
+            scheduleMatchData.classList.add("schedule-match-data");
+
+            // Hora
+            const hourDiv = document.createElement("div");
+            hourDiv.classList.add("hour");
+
+            const hourP = document.createElement("p");
+            const fecha = new Date(m.date);
+
+            const hora = fecha.toLocaleTimeString("es-AR", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            });
+
+            hourP.textContent = hora;
+
+            hourDiv.appendChild(hourP);
+            scheduleMatchData.appendChild(hourDiv);
+
+            // ===== Resultado =====
+            const scheduleDataResult = document.createElement("div");
+            scheduleDataResult.classList.add("schedule-data-result");
+
+            // --- Equipo local ---
+            const homeTeam = document.createElement("div");
+            homeTeam.classList.add("schedule-home-team");
+
+            const homeImg = document.createElement("img");
+            homeImg.setAttribute("src", `image/Logos/${m.home_team_image}.png`);
+            homeImg.setAttribute("alt", "");
+
+            const homeName = document.createElement("p");
+            homeName.textContent = m.home_team_name;
+
+            homeTeam.appendChild(homeImg);
+            homeTeam.appendChild(homeName);
+
+            // --- Resultados ---
+            const scheduleResults = document.createElement("div");
+            scheduleResults.classList.add("schedule-results");
+
+            // Local
+            const homeResult = document.createElement("div");
+            homeResult.classList.add("schedule-home-result");
+
+            if(m.penalties_home_goals != null) {
+                const penaltiesHomeGoals = document.createElement("p");
+                penaltiesHomeGoals.textContent = `(${m.penalties_home_goals})`;
+                homeResult.appendChild(penaltiesHomeGoals);
+            }
+
+            const homeGoals = document.createElement("p");
+            if(m.overtime_home_goals != null)
+                homeGoals.textContent = m.home_goals + m.overtime_home_goals;
+            else
+                homeGoals.textContent = m.home_goals;
+
+            homeResult.appendChild(homeGoals);
+
+            // Predicción
+            const predictDiv = document.createElement("div");
+            predictDiv.classList.add("schedule-predict");
+
+            const inputHome = document.createElement("input");
+            const inputAway = document.createElement("input");
+            const matchStart = new Date(m.date);
+            const now = new Date();
+
+            inputHome.type = "number";
+            inputHome.min = 0;
+            inputHome.id = `home-input-match-${m.id}`;
+            inputHome.classList.add("home-goals");
+            inputHome.dataset.teamId = m.home_team_id;
+            inputAway.type = "number";
+            inputAway.min = 0;
+            inputAway.id = `away-input-match-${m.id}`;
+            inputAway.classList.add("away-goals");
+            inputAway.dataset.teamId = m.away_team_id;
+
+            if(m.match_type === 'secondleg') {
+                inputHome.dataset.firstleg = m.referenced?.home_goals ?? null;
+                inputAway.dataset.firstleg = m.referenced?.away_goals ?? null;
+            }
+
+            if(m.prediction) {
+                inputHome.value = m.prediction.home_goals;
+                inputAway.value = m.prediction.away_goals;       
+            }
+            if (now >= matchStart) {
+                inputHome.disabled = true;
+                inputAway.disabled = true;
+                inputHome.classList.add("locked");
+                inputAway.classList.add("locked");
+            }
+            if (m.match_type === 'secondleg' && m.referenced?.status != 'finished') {
+                inputHome.disabled = true;
+                inputAway.disabled = true;
+                inputHome.classList.add("locked");
+                inputAway.classList.add("locked");
+            }
+
+            predictDiv.appendChild(inputHome);
+            predictDiv.appendChild(inputAway);
+
+            // Visitante
+            const awayResult = document.createElement("div");
+            awayResult.classList.add("schedule-away-result");
+
+            const awayGoals = document.createElement("p");
+            if(m.overtime_away_goals != null)
+                awayGoals.textContent = m.away_goals + m.overtime_away_goals;
+            else
+                awayGoals.textContent = m.away_goals;
+            awayResult.appendChild(awayGoals);
+
+            if(m.penalties_away_goals != null) {
+                const penaltiesAwayGoals = document.createElement("p");
+                penaltiesAwayGoals.textContent = `(${m.penalties_away_goals})`;
+                awayResult.appendChild(penaltiesAwayGoals);
+            }
+
+            // Armar resultados
+            scheduleResults.appendChild(homeResult);
+            scheduleResults.appendChild(predictDiv);
+            scheduleResults.appendChild(awayResult);
+
+            // --- Equipo visitante ---
+            const awayTeam = document.createElement("div");
+            awayTeam.classList.add("schedule-away-team");
+
+            const awayName = document.createElement("p");
+            awayName.textContent = m.away_team_name;
+
+            const awayImg = document.createElement("img");
+            awayImg.setAttribute("src", `image/Logos/${m.away_team_image}.png`);
+            awayImg.setAttribute("alt", "");
+
+            awayTeam.appendChild(awayName);
+            awayTeam.appendChild(awayImg);
+
+            // Armar data result
+            scheduleDataResult.appendChild(homeTeam);
+            scheduleDataResult.appendChild(scheduleResults);
+            scheduleDataResult.appendChild(awayTeam);
+
+            // Confirmar
+            const confirmPredict = document.createElement("div");
+            confirmPredict.classList.add("confirm-predict");
+
+            const confirmIcon = document.createElement("i");
+            confirmIcon.classList.add("fa-solid", "fa-square-check");
+
+            confirmIcon.dataset.type = "predict";
+            confirmIcon.dataset.matchId = m.id;
+            if (now >= matchStart) {
+                confirmPredict.classList.add("hidden");
+            }
+
+            confirmPredict.appendChild(confirmIcon);
+
+            // Armar match
+            scheduleMatchData.appendChild(scheduleDataResult);
+            scheduleMatchData.appendChild(confirmPredict);
+
+            // ===== Playoff =====
+            const playoffPredict = document.createElement("div");
+            playoffPredict.classList.add("playoff-predict");
+            playoffPredict.classList.add("hidden");
+
+            // Texto
+            const predictData = document.createElement("div");
+            predictData.classList.add("predict-data");
+
+            const predictMessage = document.createElement("div");
+            predictMessage.classList.add("predict-message");
+
+            const predictText = document.createElement("p");
+            predictText.textContent = "¿Quién avanzará?";
+
+            predictMessage.appendChild(predictText);
+
+            const predictEdit = document.createElement("div");
+            predictEdit.classList.add("predict-edit");
+
+            const editIcon = document.createElement("i");
+            editIcon.classList.add("fa-regular", "fa-pen-to-square");
+
+            predictEdit.appendChild(editIcon);
+
+            predictData.appendChild(predictMessage);
+            predictData.appendChild(predictEdit);
+
+            // Elegir equipo
+            const chooseTeam = document.createElement("div");
+            chooseTeam.classList.add("choose-team");
+
+            const homeTeamPredict = document.createElement("div");
+            homeTeamPredict.classList.add("home-team-predict");
+            homeTeamPredict.dataset.teamId = m.home_team_id;
+
+            const homeTeamImg = document.createElement("img");
+            homeTeamImg.setAttribute("src", `image/Logos/${m.home_team_image}.png`);
+            homeTeamImg.setAttribute("alt", "");
+
+            homeTeamPredict.appendChild(homeTeamImg);
+
+            const awayTeamPredict = document.createElement("div");
+            awayTeamPredict.classList.add("away-team-predict");
+            awayTeamPredict.dataset.teamId = m.away_team_id;
+
+            const awayTeamImg2 = document.createElement("img");
+            awayTeamImg2.setAttribute("src", `image/Logos/${m.away_team_image}.png`);
+            awayTeamImg2.setAttribute("alt", "");
+
+            awayTeamPredict.appendChild(awayTeamImg2);
+
+            chooseTeam.appendChild(homeTeamPredict);
+            chooseTeam.appendChild(awayTeamPredict);
+
+            // Armar playoff
+            playoffPredict.appendChild(predictData);
+            playoffPredict.appendChild(chooseTeam);
+
+            // ===== Final =====
+            scheduleData.appendChild(scheduleMatchData);
+            scheduleData.appendChild(playoffPredict);
+            container.appendChild(scheduleData);
+
+            updateAdvanceVisibility(scheduleData);
         }
-        
-        // ===== Contenedor data =====
-        const scheduleData = document.createElement("div");
-        scheduleData.classList.add("schedule-data");
-        scheduleData.dataset.type = m.match_type;
-
-        // ===== Partido =====
-        const scheduleMatchData = document.createElement("div");
-        scheduleMatchData.classList.add("schedule-match-data");
-
-        // Hora
-        const hourDiv = document.createElement("div");
-        hourDiv.classList.add("hour");
-
-        const hourP = document.createElement("p");
-        const fecha = new Date(m.date);
-
-        const hora = fecha.toLocaleTimeString("es-AR", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false
-        });
-
-        hourP.textContent = hora;
-
-        hourDiv.appendChild(hourP);
-        scheduleMatchData.appendChild(hourDiv);
-
-        // ===== Resultado =====
-        const scheduleDataResult = document.createElement("div");
-        scheduleDataResult.classList.add("schedule-data-result");
-
-        // --- Equipo local ---
-        const homeTeam = document.createElement("div");
-        homeTeam.classList.add("schedule-home-team");
-
-        const homeImg = document.createElement("img");
-        homeImg.setAttribute("src", `image/Logos/${m.home_team_image}.png`);
-        homeImg.setAttribute("alt", "");
-
-        const homeName = document.createElement("p");
-        homeName.textContent = m.home_team_name;
-
-        homeTeam.appendChild(homeImg);
-        homeTeam.appendChild(homeName);
-
-        // --- Resultados ---
-        const scheduleResults = document.createElement("div");
-        scheduleResults.classList.add("schedule-results");
-
-        // Local
-        const homeResult = document.createElement("div");
-        homeResult.classList.add("schedule-home-result");
-
-        if(m.penalties_home_goals != null) {
-            const penaltiesHomeGoals = document.createElement("p");
-            penaltiesHomeGoals.textContent = `(${m.penalties_home_goals})`;
-            homeResult.appendChild(penaltiesHomeGoals);
-        }
-
-        const homeGoals = document.createElement("p");
-        if(m.overtime_home_goals != null)
-            homeGoals.textContent = m.home_goals + m.overtime_home_goals;
-        else
-            homeGoals.textContent = m.home_goals;
-
-        homeResult.appendChild(homeGoals);
-
-        // Predicción
-        const predictDiv = document.createElement("div");
-        predictDiv.classList.add("schedule-predict");
-
-        const inputHome = document.createElement("input");
-        const inputAway = document.createElement("input");
-        const matchStart = new Date(m.date);
-        const now = new Date();
-
-        inputHome.type = "number";
-        inputHome.min = 0;
-        inputHome.id = `home-input-match-${m.id}`;
-        inputHome.classList.add("home-goals");
-        inputHome.dataset.teamId = m.home_team_id;
-        inputAway.type = "number";
-        inputAway.min = 0;
-        inputAway.id = `away-input-match-${m.id}`;
-        inputAway.classList.add("away-goals");
-        inputAway.dataset.teamId = m.away_team_id;
-
-        if(m.match_type === 'secondleg') {
-            inputHome.dataset.firstleg = m.referenced?.home_goals ?? null;
-            inputAway.dataset.firstleg = m.referenced?.away_goals ?? null;
-        }
-
-        if(m.prediction) {
-            inputHome.value = m.prediction.home_goals;
-            inputAway.value = m.prediction.away_goals;       
-        }
-        if (now >= matchStart) {
-            inputHome.disabled = true;
-            inputAway.disabled = true;
-            inputHome.classList.add("locked");
-            inputAway.classList.add("locked");
-        }
-        if (m.match_type === 'secondleg' && m.referenced?.status != 'finished') {
-            inputHome.disabled = true;
-            inputAway.disabled = true;
-            inputHome.classList.add("locked");
-            inputAway.classList.add("locked");
-        }
-
-        predictDiv.appendChild(inputHome);
-        predictDiv.appendChild(inputAway);
-
-        // Visitante
-        const awayResult = document.createElement("div");
-        awayResult.classList.add("schedule-away-result");
-
-        const awayGoals = document.createElement("p");
-        if(m.overtime_away_goals != null)
-            awayGoals.textContent = m.away_goals + m.overtime_away_goals;
-        else
-            awayGoals.textContent = m.away_goals;
-        awayResult.appendChild(awayGoals);
-
-        if(m.penalties_away_goals != null) {
-            const penaltiesAwayGoals = document.createElement("p");
-            penaltiesAwayGoals.textContent = `(${m.penalties_away_goals})`;
-            awayResult.appendChild(penaltiesAwayGoals);
-        }
-
-        // Armar resultados
-        scheduleResults.appendChild(homeResult);
-        scheduleResults.appendChild(predictDiv);
-        scheduleResults.appendChild(awayResult);
-
-        // --- Equipo visitante ---
-        const awayTeam = document.createElement("div");
-        awayTeam.classList.add("schedule-away-team");
-
-        const awayName = document.createElement("p");
-        awayName.textContent = m.away_team_name;
-
-        const awayImg = document.createElement("img");
-        awayImg.setAttribute("src", `image/Logos/${m.away_team_image}.png`);
-        awayImg.setAttribute("alt", "");
-
-        awayTeam.appendChild(awayName);
-        awayTeam.appendChild(awayImg);
-
-        // Armar data result
-        scheduleDataResult.appendChild(homeTeam);
-        scheduleDataResult.appendChild(scheduleResults);
-        scheduleDataResult.appendChild(awayTeam);
-
-        // Confirmar
-        const confirmPredict = document.createElement("div");
-        confirmPredict.classList.add("confirm-predict");
-
-        const confirmIcon = document.createElement("i");
-        confirmIcon.classList.add("fa-solid", "fa-square-check");
-
-        confirmIcon.dataset.type = "predict";
-        confirmIcon.dataset.matchId = m.id;
-        if (now >= matchStart) {
-            confirmPredict.classList.add("hidden");
-        }
-
-        confirmPredict.appendChild(confirmIcon);
-
-        // Armar match
-        scheduleMatchData.appendChild(scheduleDataResult);
-        scheduleMatchData.appendChild(confirmPredict);
-
-        // ===== Playoff =====
-        const playoffPredict = document.createElement("div");
-        playoffPredict.classList.add("playoff-predict");
-        playoffPredict.classList.add("hidden");
-
-        // Texto
-        const predictData = document.createElement("div");
-        predictData.classList.add("predict-data");
-
-        const predictMessage = document.createElement("div");
-        predictMessage.classList.add("predict-message");
-
-        const predictText = document.createElement("p");
-        predictText.textContent = "¿Quién avanzará?";
-
-        predictMessage.appendChild(predictText);
-
-        const predictEdit = document.createElement("div");
-        predictEdit.classList.add("predict-edit");
-
-        const editIcon = document.createElement("i");
-        editIcon.classList.add("fa-regular", "fa-pen-to-square");
-
-        predictEdit.appendChild(editIcon);
-
-        predictData.appendChild(predictMessage);
-        predictData.appendChild(predictEdit);
-
-        // Elegir equipo
-        const chooseTeam = document.createElement("div");
-        chooseTeam.classList.add("choose-team");
-
-        const homeTeamPredict = document.createElement("div");
-        homeTeamPredict.classList.add("home-team-predict");
-        homeTeamPredict.dataset.teamId = m.home_team_id;
-
-        const homeTeamImg = document.createElement("img");
-        homeTeamImg.setAttribute("src", `image/Logos/${m.home_team_image}.png`);
-        homeTeamImg.setAttribute("alt", "");
-
-        homeTeamPredict.appendChild(homeTeamImg);
-
-        const awayTeamPredict = document.createElement("div");
-        awayTeamPredict.classList.add("away-team-predict");
-        awayTeamPredict.dataset.teamId = m.away_team_id;
-
-        const awayTeamImg2 = document.createElement("img");
-        awayTeamImg2.setAttribute("src", `image/Logos/${m.away_team_image}.png`);
-        awayTeamImg2.setAttribute("alt", "");
-
-        awayTeamPredict.appendChild(awayTeamImg2);
-
-        chooseTeam.appendChild(homeTeamPredict);
-        chooseTeam.appendChild(awayTeamPredict);
-
-        // Armar playoff
-        playoffPredict.appendChild(predictData);
-        playoffPredict.appendChild(chooseTeam);
-
-        // ===== Final =====
-        scheduleData.appendChild(scheduleMatchData);
-        scheduleData.appendChild(playoffPredict);
-        matchTable.appendChild(scheduleData);
-
-        updateAdvanceVisibility(scheduleData);
     });
 }
 

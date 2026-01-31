@@ -178,7 +178,10 @@ def get_tournament_matches(tournament_id, user_id):
             "penalties_home_goals": r[17],
             "penalties_away_goals": r[18],
             "home_team_id": r[19],
-            "away_team_id": r[20]
+            "away_team_id": r[20],
+            "round": r[21],
+            "round_name": r[22],
+            "order_index": r[23]
         })
 
     return matches

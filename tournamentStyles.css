@@ -192,14 +192,43 @@ body {
 
 /* Match list in the tournament */
 
+.matches-list-schedule {
+  background: #fff;
+  width: 50%;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 15px;
+  box-shadow: 0 0 15px rgba(0,0,0,.1);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.match-table-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 10px 10px 15px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #0533db;
+  color: #0533db;
+}
+
+.match-table-header p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.match-table-header i {
+  cursor: pointer;
+}
+
+.match-table-header i:hover {
+  color:#001d88;
+}
+
 .match-table {
-    background: #fff;
-    width: 50%;
-    border-radius: 16px;
-    padding: 16px;
-    margin: 15px;
-    box-shadow: 0 0 15px rgba(0,0,0,.1);
-    box-sizing: border-box;
+    width: 100%;
     display: flex;
     flex-direction: column;
 }
