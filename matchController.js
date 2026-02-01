@@ -1,20 +1,5 @@
 import { matchAPI } from './matchAPI.js';
 
-const competitionImage = {
-  4: "image/EURO.png",
-  5: "image/ChampionsLeague.png",
-  6: "image/LaLiga.png",
-  7: "image/Mundial.png",
-  8: "image/PremierLeague.png",
-  9: "image/SerieA.png",
-  10: "image/Ligue1.png",
-  11: "image/Bundesliga.png",
-  14: "image/CopaAmerica.png",
-  15: "image/LPF2.png",
-  16: "image/Brasileirao.png",
-  17: "image/Libertadores.png"
-};
-
 const competitionCountry = {
   4: "Europa",
   5: "Europa",
@@ -104,7 +89,7 @@ function renderMatchList(matches) {
                 info.appendChild(containerImg);
 
                 const img = document.createElement("img");
-                img.src = competitionImage[m.competition_id];
+                img.src = `image/competitions/${m.competition_image_name}.png`;
                 img.alt = `${m.competition_name} logo`;
 
                 containerImg.appendChild(img);
@@ -424,7 +409,7 @@ function renderMatchCarousel(matches) {
         competition.classList.add("important-competition");
 
         const competitionImg = document.createElement("img");
-        competitionImg.src = competitionImage[m.competition_id];
+        competitionImg.src = `image/competitions/${m.competition_image_name}.png`;
         /*competitionImg.alt = m.competition_name + " logo";*/
 
         const competitionText = document.createElement("p");

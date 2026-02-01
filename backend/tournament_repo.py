@@ -73,7 +73,8 @@ def fetch_all(user_id):
             t.participant_limit,
             t.entry_price,
             t.public,
-            t.password
+            t.password,
+            c.image_name
         FROM tournament t
         JOIN competition c ON t.competition_id = c.id
         WHERE NOT EXISTS (
@@ -106,7 +107,8 @@ def fetch_by_user_id(user_id):
                t.participant_limit,
                t.entry_price,
                t.public,
-               t.password
+               t.password,
+               c.image_name
         FROM registration r
         INNER JOIN tournament t ON r.tournament_id = t.id
         INNER JOIN competition c ON t.competition_id = c.id
@@ -127,7 +129,8 @@ def fetch_by_id(tournament_id):
                t.participant_limit,
                t.entry_price,
                t.public,
-               t.password
+               t.password,
+               c.image_name
         FROM tournament as t
         INNER JOIN competition as c ON c.id = t.competition_id
         WHERE t.id = %s
@@ -214,7 +217,7 @@ def fetch_teams(tournament_id):
     db = Database()
 
     query = """
-        SELECT te.id, te.name
+        SELECT te.id, te.name, te.image_name
         FROM team as te
         INNER JOIN team_participations as tp ON tp.team_id = te.id
         INNER JOIN tournament as t ON tp.season_id = t.season_id

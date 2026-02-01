@@ -19,7 +19,8 @@ def fetch_all_matches(date):
             c.id AS competition_id,
             c.name AS competition_name,
             th.image_name as home_team_image,
-            ta.image_name as away_team_image
+            ta.image_name as away_team_image,
+            c.image_name
         FROM match_ as m
         JOIN team as th 
             ON m.home_team_id = th.id
@@ -53,7 +54,8 @@ def fetch_personal_matches(date, user_id):
             c.id AS competition_id,
             c.name AS competition_name,
             th.image_name as home_team_image,
-            ta.image_name as away_team_image
+            ta.image_name as away_team_image,
+            c.image_name
         FROM match_ as m
         JOIN team as th 
             ON m.home_team_id = th.id
@@ -95,7 +97,8 @@ def fetch_calendar_matches(month, year, user_id):
             c.id AS competition_id,
             c.name AS competition_name,
             th.image_name as home_team_image,
-            ta.image_name as away_team_image
+            ta.image_name as away_team_image,
+            c.image_name
         FROM match_ as m
         JOIN team as th 
             ON m.home_team_id = th.id
@@ -132,7 +135,8 @@ def fetch_important_matches():
             c.id AS competition_id,
             c.name AS competition_name,
             th.image_name AS home_team_image,
-            ta.image_name AS away_team_image
+            ta.image_name AS away_team_image,
+            c.image_name
         FROM match_ AS m
         JOIN team AS th 
             ON m.home_team_id = th.id

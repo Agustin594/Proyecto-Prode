@@ -62,7 +62,8 @@ def get_tournaments(user_id):
             "participant_limit": r[5],
             "entry_price": r[6],
             "public": r[7],
-            "password": r[8]
+            "password": r[8],
+            "image_name": r[9]
         })
 
     return tournaments
@@ -92,7 +93,8 @@ def get_tournaments_by_user_id(user_id):
             "participant_limit": r[5],
             "entry_price": r[6],
             "public": r[7],
-            "password": r[8]
+            "password": r[8],
+            "image_name": r[9]
         })
 
     return tournaments
@@ -133,7 +135,8 @@ def get_tournament_by_id(tournament_id):
         "participant_limit": t[5],
         "entry_price": t[6],
         "public": t[7],
-        "password": t[8]
+        "password": t[8],
+        "image_name": t[9]
     }
 
 def get_tournament_standings(tournament_id):
@@ -275,7 +278,8 @@ def get_teams(tournament_id):
     for r in rows:
         teams.append({
             "id": r[0],
-            "name": r[1]
+            "name": r[1],
+            "image_name": r[2]
         })
 
     return teams

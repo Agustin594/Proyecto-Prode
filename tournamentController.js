@@ -31,21 +31,6 @@ const competitionSecundaryColors = {
   17: "#474747"
 };
 
-const competitionImage = {
-  4: "image/EURO.png",
-  5: "image/ChampionsLeague.png",
-  6: "image/LaLiga.png",
-  7: "image/Mundial.png",
-  8: "image/PremierLeague.png",
-  9: "image/SerieA.png",
-  10: "image/Ligue1.png",
-  11: "image/Bundesliga.png",
-  14: "image/CopaAmerica.png",
-  15: "image/LPF2.png",
-  16: "image/Brasileirao.png",
-  17: "image/Libertadores.png"
-};
-
 document.addEventListener('DOMContentLoaded', () => 
 {
     const token = localStorage.getItem("token")
@@ -77,6 +62,7 @@ async function initTournament(tournamentId) {
     const registered = await isRegistered(tournamentId);
 
     if (registered) {
+        setupChampionSelect();
         loadSpecialPredictionForm(tournamentId);
         setupSpecialPredictionForm(tournamentId);
         setupAbandonButton(tournamentId);
@@ -256,7 +242,7 @@ function renderTournamentList(tournaments, id, type)
             containerImg.classList.add("container-img");
 
             const img = document.createElement("img");
-            img.src = competitionImage[t.competition_id];
+            img.src = `image/competitions/${t.image_name}.png`;
             img.alt = `${t.name} logo`;
 
             containerImg.appendChild(img);
@@ -379,12 +365,12 @@ function setupTournamentData(){
 
 function showTournamentList() {
   document.getElementById("tournament-list").hidden = false;
-  document.getElementById("tournament-detail").hidden = true;
+  document.getElementById("tournamentDetail").hidden = true;
 }
 
 function showTournamentDetail() {
   document.getElementById("tournament-list").hidden = true;
-  document.getElementById("tournament-detail").hidden = false;
+  document.getElementById("tournamentDetail").hidden = false;
 }
 
 async function loadTournamentData(tournamentId) 
@@ -392,20 +378,38 @@ async function loadTournamentData(tournamentId)
     try 
     {
         const t = await tournamentAPI.fetchById(tournamentId);
+
+        document.getElementById("tournamentDetail").style.setProperty(
+            "--competition-color",
+            competitionColors[t.competition_id]
+        );
         
-        const div = document.getElementById('tournament-data');
+        const div = document.getElementById('tournamentData');
         div.replaceChildren();
 
+        const dataContainer = document.createElement("div");
+        dataContainer.classList.add("tournament-data-detail");
+
+        const competitionImg = document.createElement("img");
+        competitionImg.src = `image/competitions/${t.image_name}.png`
+
+        const trophyImg = document.createElement("img");
+        trophyImg.src = `image/competitions/${t.image_name}-trophy.png`
         
         const p = document.createElement('p');
 
-        const status = t.open ? "Inscripción abierta" : "Inscripción cerrada";
-        const visibility = t.public ? "Público" : "Privado";
-        const price = t.entry_price === 0 ? "Gratis" : `$${t.entry_price}`;
+        p.textContent = `Participants: ${t.registered_participants}/${t.participant_limit}`;
 
-        p.textContent = `${t.name} — Participantes: ${t.registered_participants}/${t.participant_limit} — ${price} — ${visibility} — ${status}`;
+        const h3 = document.createElement('h3');
 
-        div.appendChild(p);
+        h3.textContent = t.name;
+
+        dataContainer.appendChild(h3);
+        dataContainer.appendChild(p);
+
+        div.appendChild(competitionImg);
+        div.appendChild(dataContainer);
+        div.appendChild(trophyImg);
         
     } 
     catch (err) 
@@ -433,19 +437,101 @@ async function loadTournamentUserTable(tournamentId)
 
 function renderStandingTable(users) 
 {
-    const tbody = document.getElementById('user-table');
-    tbody.replaceChildren();
+    const div = document.getElementById('userTable');
+    div.replaceChildren();
+
+    const header = document.createElement("div");
+    header.classList.add("header");
+
+    const p1 = document.createElement('p');
+    const p2 = document.createElement('p');
+    const p3 = document.createElement('p');
+
+    p1.textContent = "Pos";
+    p2.textContent = "Username";
+    p3.textContent = "Points";
+
+    header.appendChild(p1);
+    header.appendChild(p2);
+    header.appendChild(p3);
+
+    div.appendChild(header);
 
     let pos = 1;
     users.forEach(u => 
     {
-        const tr = document.createElement('tr');
+        const user = document.createElement('div');
+        user.classList.add("user");
 
-        tr.appendChild(createCell(pos));
-        tr.appendChild(createCell(u.user_name));
-        tr.appendChild(createCell(u.points));
+        const p1 = document.createElement('p');
+        const p2 = document.createElement('p');
+        const p3 = document.createElement('p');
 
-        tbody.appendChild(tr);
+        p1.textContent = pos;
+        p2.textContent = u.user_name;
+        p3.textContent = u.points;
+
+        user.appendChild(p1);
+        user.appendChild(p2);
+        user.appendChild(p3);
+
+        if (pos === 1) {
+            p1.classList.add("first");
+
+            const spanName = document.createElement("span");
+            const spanPlace = document.createElement("span");
+            const spanPoints = document.createElement("span");
+
+            spanName.classList.add("name");
+            spanPlace.classList.add("place");
+            spanPoints.classList.add("points");
+
+            spanName.textContent = u.user_name;
+            spanPlace.textContent = pos;
+            spanPoints.textContent = `${u.points} pts.`
+
+            document.getElementById("podiumFirstPlace").appendChild(spanName);
+            document.getElementById("podiumFirstPlace").appendChild(spanPlace);
+            document.getElementById("podiumFirstPlace").appendChild(spanPoints);
+        } else if (pos === 2) {
+            p1.classList.add("second");
+
+            const spanName = document.createElement("span");
+            const spanPlace = document.createElement("span");
+            const spanPoints = document.createElement("span");
+
+            spanName.classList.add("name");
+            spanPlace.classList.add("place");
+            spanPoints.classList.add("points");
+
+            spanName.textContent = u.user_name;
+            spanPlace.textContent = pos;
+            spanPoints.textContent = `${u.points} pts.`
+
+            document.getElementById("podiumSecondPlace").appendChild(spanName);
+            document.getElementById("podiumSecondPlace").appendChild(spanPlace);
+            document.getElementById("podiumSecondPlace").appendChild(spanPoints);
+        } else if (pos === 3) {
+            p1.classList.add("third");
+
+            const spanName = document.createElement("span");
+            const spanPlace = document.createElement("span");
+            const spanPoints = document.createElement("span");
+
+            spanName.classList.add("name");
+            spanPlace.classList.add("place");
+            spanPoints.classList.add("points");
+
+            spanName.textContent = u.user_name;
+            spanPlace.textContent = pos;
+            spanPoints.textContent = `${u.points} pts.`
+
+            document.getElementById("podiumThirdPlace").appendChild(spanName);
+            document.getElementById("podiumThirdPlace").appendChild(spanPlace);
+            document.getElementById("podiumThirdPlace").appendChild(spanPoints);
+        }
+
+        div.appendChild(user);
 
         pos+=1;
     });
@@ -1022,7 +1108,7 @@ async function isRegistered(tournamentId){
 }
 
 function loadSpecialPredictionForm(tournamentId){
-    document.getElementById("prediction-container").hidden = false;
+    document.getElementById("predictionContainer").hidden = false;
     initTeamSelect(tournamentId);
 }
 
@@ -1034,19 +1120,21 @@ async function initTeamSelect(tournamentId)
         const team_prediction = await tournamentAPI.fetchByPath(`${tournamentId}/prediction`);
         const championSelect = document.getElementById('championIdSelect');
 
-        if(!team_prediction.champion_id){
+        /*if(!team_prediction.champion_id){
             const option = document.createElement('option');
-            option.textContent = "Select champion";
+            option.value = '';
+            option.textContent = "Choose a team";
             option.disabled = true;
             option.selected = true;
             championSelect.appendChild(option);
-        }
+        }*/
 
         teams.forEach(t => 
         {
             const option = document.createElement('option');
             option.value = t.id;
             option.textContent = t.name;
+            option.dataset.imageName = t.image_name;
 
             if(t.id === team_prediction.champion_id){
                 option.selected = true;
@@ -1054,6 +1142,29 @@ async function initTeamSelect(tournamentId)
             }
 
             championSelect.appendChild(option);
+        });
+
+        const ts = new TomSelect('#championIdSelect', {
+            placeholder: 'Choose a team',
+            allowEmptyOption: true,
+            valueField: 'value',
+            labelField: 'text',
+            searchField: 'text',
+
+            render: {
+                option: (data, escape) => `
+                <div style="display:flex;align-items:center;gap:8px">
+                    <img src="image/Logos/${data.imageName}.png" style="width:22px;height:22px">
+                    <span>${escape(data.text)}</span>
+                </div>
+                `,
+                item: (data, escape) => `
+                <div style="display:flex;align-items:center;gap:8px">
+                    <img src="image/Logos/${data.imageName}.png" style="width:20px;height:20px">
+                    <span>${escape(data.text)}</span>
+                </div>
+                `
+            }
         });
     } 
     catch (err) 
@@ -1098,13 +1209,26 @@ function getPredictionFormData(tournamentId) {
 }
 
 function setupAbandonButton(tournamentId){
-    const container = document.getElementById("prediction-container");
+    const container = document.getElementById("predictionContainer");
     deleteButton(container, tournamentId);
 }
 
 function setupRegisterButton(tournamentId){
-    const data = document.getElementById("tournament-data");
+    const data = document.getElementById("tournamentData");
     const container = document.createElement("div");
     registerButton(container, tournamentId);
     data.appendChild(container);
+}
+
+function setupChampionSelect() {
+    const wrapper = document.querySelector('.select-wrapper');
+    const select = wrapper.querySelector('select');
+
+    select.addEventListener('focus', () => {
+        wrapper.classList.add('select-open');
+    });
+
+    select.addEventListener('blur', () => {
+        wrapper.classList.remove('select-open');
+    });
 }

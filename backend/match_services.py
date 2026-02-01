@@ -23,7 +23,8 @@ def get_all_matches(date):
             "competition_id": r[7],
             "competition_name": r[8],
             "home_team_image": r[9],
-            "away_team_image": r[10]
+            "away_team_image": r[10],
+            "competition_image_name": r[11]
         })
 
     return matches
@@ -44,7 +45,8 @@ def get_personal_matches(date, user_id):
             "competition_id": r[7],
             "competition_name": r[8],
             "home_team_image": r[9],
-            "away_team_image": r[10]
+            "away_team_image": r[10],
+            "competition_image_name": r[11]
         })
 
     return matches
@@ -65,7 +67,8 @@ def get_important_matches():
             "competition_id": r[7],
             "competition_name": r[8],
             "home_team_image": r[9],
-            "away_team_image": r[10]
+            "away_team_image": r[10],
+            "competition_image_name": r[11]
         })
 
         match["points"] = calculate_match_points(match)
@@ -95,7 +98,8 @@ def get_calendar_matches(month, year, user_id):
             "competition_id": r[7],
             "competition_name": r[8],
             "home_team_image": r[9],
-            "away_team_image": r[10]
+            "away_team_image": r[10],
+            "competition_image_name": r[11]
         })
 
     return matches
