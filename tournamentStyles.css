@@ -793,6 +793,187 @@ body {
   margin-top: 20px;
 }
 
+/***********************************************************************************************************************/
+
+/* Create Tournament Form */
+
+.tournament-create-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.tournament-create-form h3 {
+  font-size: 25px;
+  color: #272727;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 35%;
+  padding: 15px;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0,0,0,.1);
+}
+
+.create-form > div:not(.privacity) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.create-form > div {
+  margin: 10px;
+}
+
+.create-form label:not(.privacity label) {
+  margin-bottom: 10px;
+}
+
+.create-form label {
+  color: #272727;
+}
+
+.privacity {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0 15px;
+}
+
+.create-form input:not([type="radio"]) {
+  width: 100%;
+}
+
+.competition-select {
+  width: 70%;
+}
+
+.create-form input[type="number"] {
+  width: 100px;
+  padding: 8px 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.create-form input[type="number"]:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.create-form input[type="number"]::-webkit-inner-spin-button,
+.create-form input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  height: auto;
+  cursor: pointer;
+  background: #f3f4f6;
+}
+
+.create-form input[type="number"]::-webkit-inner-spin-button:hover {
+  background: #e5e7eb;
+}
+
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #111827;
+  margin: 0 10px;
+}
+
+.radio input {
+  display: none;
+}
+
+.radio span {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #9ca3af;
+  border-radius: 50%;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.radio span::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: #3b82f6;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.2s;
+}
+
+.radio input:checked + span {
+  border-color: #3b82f6;
+}
+
+.radio input:checked + span::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Tournament Password */
+
+.container-password {
+  position: relative;
+}
+
+.container-password i {
+    position: absolute;
+    right: 0px;
+    top: 70%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 17px;
+    color: rgb(61, 61, 61);
+}
+
+.container-password i:hover {
+  color: black;
+}
+
+.container-password input {
+  padding: 10px;
+  border: 1px solid rgb(199, 199, 199);
+  border-radius: 8px;
+}
+
+.container-password input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.2);
+}
+
+.create-form > button {
+  background-color: #3b82f6;
+  border: none;
+  color: white;
+  font-size: 18px;
+  padding: 7px;
+  margin-top: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.create-form > button:hover {
+  background-color: #0533db;
+}
+
 /* HIDDEN */
 
 [hidden] {

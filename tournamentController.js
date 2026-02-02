@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () =>
         initTournament(tournamentId);
     } else {
         initSelect();
+        setupPasswordButton();
         showTournamentList();
         setupTournamentFormHandler();
         setupPasswordInput();
@@ -87,7 +88,31 @@ async function initSelect()
             const option = document.createElement('option');
             option.value = c.id;
             option.textContent = c.name;
+            option.dataset.imageName = c.image_name;
             competitionSelect.appendChild(option);
+        });
+
+        const ts = new TomSelect('#competitionIdSelect', {
+            placeholder: 'Choose a competition',
+            allowEmptyOption: true,
+            valueField: 'value',
+            labelField: 'text',
+            searchField: 'text',
+
+            render: {
+                option: (data, escape) => `
+                <div style="display:flex;align-items:center;gap:8px">
+                    <img src="image/competitions/${data.imageName}.png" style="width:22px;height:22px">
+                    <span>${escape(data.text)}</span>
+                </div>
+                `,
+                item: (data, escape) => `
+                <div style="display:flex;align-items:center;gap:8px">
+                    <img src="image/competitions/${data.imageName}.png" style="width:20px;height:20px">
+                    <span>${escape(data.text)}</span>
+                </div>
+                `
+            }
         });
     } 
     catch (err) 
@@ -1230,5 +1255,22 @@ function setupChampionSelect() {
 
     select.addEventListener('blur', () => {
         wrapper.classList.remove('select-open');
+    });
+}
+
+function setupPasswordButton() {
+    const passwordInput = document.getElementById("tournament-password");
+    const togglePassword = document.getElementById("togglePassword");
+
+    togglePassword.addEventListener("click", () => {
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            togglePassword.classList.remove("fa-eye-slash");
+            togglePassword.classList.add("fa-eye");
+        } else {
+            passwordInput.type = "password";
+            togglePassword.classList.remove("fa-eye");
+            togglePassword.classList.add("fa-eye-slash");
+        }
     });
 }

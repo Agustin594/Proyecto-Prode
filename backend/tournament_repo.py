@@ -90,7 +90,7 @@ def fetch_competitions():
     db = Database()
     
     query = """
-        SELECT id, name
+        SELECT id, name, image_name
         FROM competition
     """
     return db.fetch_all(query)

@@ -9,43 +9,56 @@
     <title>ProdeBET</title>
 </head>
 <body>
+    <a href="matches.html">Matches</a>
+
     <!-- Lista de torneos -->
     <section id="tournament-list">
-        <a href="matches.html">Matches</a>
+        <div class="tournament-create-form">
+            <h3>Create Tournament</h3>
 
-        <h2>Create Tournament</h2>
+            <form id="tournamentForm" class="create-form">
+                <div id="container-competition-id">
+                    <label for="competitionIdSelect">Competition</label>
+                    <select name="competition" id="competitionIdSelect" class="competition-select" required></select>
+                </div>
 
-        <form id="tournamentForm">
-            <div id="container-competition-id">
-                <label for="competitionIdSelect">Competition</label>
-                <select name="competition" id="competitionIdSelect" required>
-                    <option value="" disabled selected>Select competition</option>
-                </select>
-            </div>
+                <div id="container-participant-limit">
+                    <label for="participants">Participant Limit</label>
+                    <input type="number" id="participants" min=5 step=5 required>
+                </div>
 
-            <div id="container-participant-limit">
-                <label for="participants">Participant Limit</label>
-                <input type="number" id="participants" min=5 step=5 required>
-            </div>
+                <div id="container-entry-price">
+                    <label for="price">Entry Price</label>
+                    <input type="number" id="price" min=0 step=10 required>
+                </div>
 
-            <div id="container-entry-price">
-                <label for="price">Entry Price</label>
-                <input type="number" id="price" min=0 step=10 required>
-            </div>
+                <div class="privacity">
+                    <div>
+                        <label for="public" class="radio">
+                            Public
+                            <input type="radio" id="public" name="privacity" value="public" checked required>
+                            <span></span>
+                        </label>
+                    </div>
 
-            <label for="public">Public</label>
-            <input type="radio" id="public" name="privacity" value="public" checked required>
+                    <div>
+                        <label for="private" class="radio">
+                            Private
+                            <input type="radio" id="private" name="privacity" value="private" required>
+                            <span></span>
+                        </label> 
+                    </div>
+                </div>
 
-            <label for="private">Private</label>
-            <input type="radio" id="private" name="privacity" value="private" required>
+                <div hidden id="password-input" class="container-password">
+                    <label for="tournament-password">Password</label>
+                    <input type="password" id="tournament-password">
+                    <i class="fa-regular fa-eye-slash" id="togglePassword"></i>
+                </div>
 
-            <div hidden id="password-input">
-                <label for="tournament-password">Password</label>
-                <input type="password" id="tournament-password">
-            </div>
-
-            <button type="submit">Create</button>
-        </form>
+                <button type="submit">Create</button>
+            </form>
+        </div>
 
         <div class="container-tournaments">
             <h2>Tournaments</h2>

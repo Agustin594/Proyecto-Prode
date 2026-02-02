@@ -43,7 +43,8 @@ def get_competitions():
     for r in rows:
         competitions.append({
             "id": r[0],
-            "name": r[1]
+            "name": r[1],
+            "image_name": r[2]
         })
 
     return competitions
