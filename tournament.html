@@ -9,11 +9,27 @@
     <title>ProdeBET</title>
 </head>
 <body>
-    <a href="matches.html">Matches</a>
+    <header class="header">
+        <div class="header-top">
+            <div class="container-img">
+                <img src="" alt="Logo ProdeBET">
+            </div>
+            <div class="main-options"></div>
+        </div>
+        <nav class="nav">
+            <ul>
+                <li id="matchLink">Matches</li>
+                <li id="tournamentLink" class="nav-selected">Tournaments</li>
+                <li id="myTournamentLink">My Tournaments</li>
+                <li id="createTournamentLink">Create Tournament</li>
+                <li id="shopLink">Shop</li>
+            </ul>
+        </nav>
+    </header>
 
-    <!-- Lista de torneos -->
+    <!-- Tournament List -->
     <section id="tournament-list">
-        <div class="tournament-create-form">
+        <div class="tournament-create-form" id="createTournamentListContainer" hidden>
             <h3>Create Tournament</h3>
 
             <form id="tournamentForm" class="create-form">
@@ -60,13 +76,11 @@
             </form>
         </div>
 
-        <div class="container-tournaments">
-            <h2>Tournaments</h2>
+        <div class="container-tournaments" id="tournamentListContainer">
             <div id="tournamentList" class="list"></div>
         </div>
 
-        <div class="container-tournaments">
-            <h2>My Tournaments</h2>
+        <div class="container-tournaments" id="myTournamentListContainer" hidden>
             <div id="myTournamentList" class="list"></div>
         </div>
     </section>

@@ -1,23 +1,11 @@
-1- Arreglar scorers
-2- Ver por qué solo se fetchean los partidos finalizados
-3- Modificar los external_id a internal_id en las FK
-4- Agregar sync_scorers
-5- Ver el tema de las image_name (principalmente para competición y para escudos de equipos)
-6- Crear los "async"
-7- Arreglar la determinación de equipo clasificado y/o campeón (ver la posibilidad de partidos ida y vuelta y penales)
 8- Nombre corto para los equipos
-9- ARREGLAR CREAR TORNEO
-10- TOKENS
-11- En torneos solo dejar los disponibles, no solo en cantidad de participantes sino tambien si no me habia unido anteriormente
 12- Bloquear página sin login
 13- Arreglar lo de importar funciones (Ver si sirve importar la creacion de la pag de una)
 
-
-Registro de usuario
-Inscripción a torneo
-Abandono de torneo
-Crear torneo (posibilidad de modificación)
-Crear predicción de partido
-Modificar predicción de partido
-Crear predicción especial
-Modificar predicción especial
+- Arreglar matches duplicados
+- Logo
+- Datos del usuario
+- Redirigir desde matches
+- Mensajes para los usuarios
+- Register/login
+- Filtrado de torneos

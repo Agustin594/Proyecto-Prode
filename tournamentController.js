@@ -33,10 +33,10 @@ const competitionSecundaryColors = {
 
 document.addEventListener('DOMContentLoaded', () => 
 {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
 
     if (!token) {
-        window.location.href = "login.html"
+        window.location.href = "login.html";
     }
 
     const params = new URLSearchParams(window.location.search);
@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () =>
         loadTournamentUserTable(tournamentId);
         initTournament(tournamentId);
     } else {
+        setupNavButtons();
         initSelect();
         setupPasswordButton();
         showTournamentList();
@@ -466,7 +467,7 @@ function renderStandingTable(users)
     div.replaceChildren();
 
     const header = document.createElement("div");
-    header.classList.add("header");
+    header.classList.add("user-table-header");
 
     const p1 = document.createElement('p');
     const p2 = document.createElement('p');
@@ -1273,4 +1274,59 @@ function setupPasswordButton() {
             togglePassword.classList.add("fa-eye-slash");
         }
     });
+}
+
+function setupNavButtons() {
+    const matchLink = document.getElementById("matchLink");
+    const tournamentLink = document.getElementById("tournamentLink");
+    const myTournamentLink = document.getElementById("myTournamentLink");
+    const createTournamentLink = document.getElementById("createTournamentLink");
+    const shopLink = document.getElementById("shopLink");
+
+    const createT = document.getElementById("createTournamentListContainer");
+    const tournaments = document.getElementById("tournamentListContainer");
+    const myTournaments = document.getElementById("myTournamentListContainer");
+
+    tournamentLink.addEventListener("click", () => {
+        if(!tournamentLink.classList.contains("nav-selected")) {
+            myTournamentLink.classList.remove("nav-selected");
+            createTournamentLink.classList.remove("nav-selected");
+            shopLink.classList.remove("nav-selected");
+            tournamentLink.classList.add("nav-selected");
+
+            createT.hidden = true;
+            myTournaments.hidden = true;
+            tournaments.hidden = false;
+        }
+    })
+
+    myTournamentLink.addEventListener("click", () => {
+        if(!myTournamentLink.classList.contains("nav-selected")) {
+            tournamentLink.classList.remove("nav-selected");
+            createTournamentLink.classList.remove("nav-selected");
+            shopLink.classList.remove("nav-selected");
+            myTournamentLink.classList.add("nav-selected");
+
+            createT.hidden = true;
+            myTournaments.hidden = false;
+            tournaments.hidden = true;
+        }
+    })
+
+    createTournamentLink.addEventListener("click", () => {
+        if(!createTournamentLink.classList.contains("nav-selected")) {
+            myTournamentLink.classList.remove("nav-selected");
+            tournamentLink.classList.remove("nav-selected");
+            shopLink.classList.remove("nav-selected");
+            createTournamentLink.classList.add("nav-selected");
+
+            createT.hidden = false;
+            myTournaments.hidden = true;
+            tournaments.hidden = true;
+        }
+    })
+
+    matchLink.addEventListener("click", () => {
+        window.location.href = "matches.html";
+    })
 }
