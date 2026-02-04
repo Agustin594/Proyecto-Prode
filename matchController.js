@@ -186,29 +186,64 @@ function renderMatchList(matches) {
 
             matchData.appendChild(result);
 
-            const homeGoals = document.createElement("div");
-            const awayGoals = document.createElement("div");
+            const generalResult = document.createElement("div");
+            generalResult.classList.add("general-result");
 
-            result.appendChild(homeGoals);
-            result.appendChild(awayGoals);
+            result.appendChild(generalResult);
+
+            let totalHomeGoals = m.home_goals;
+            let totalAwayGoals = m.away_goals;
 
             const p7 = document.createElement("p");
-            p7.textContent = m.home_goals;
-            homeGoals.appendChild(p7);
+            if(m.overtime_home_goals != null) {
+                p7.textContent = m.home_goals + m.overtime_home_goals;
+                totalHomeGoals += m.overtime_home_goals;
+            }
+            else
+                p7.textContent = m.home_goals;
+            generalResult.appendChild(p7);
 
             const p8 = document.createElement("p");
-            p8.textContent = m.away_goals;
-            awayGoals.appendChild(p8);
+            if(m.overtime_away_goals != null) {
+                p8.textContent = m.away_goals + m.overtime_away_goals;
+                totalAwayGoals += m.overtime_away_goals;
+            }
+            else
+                p8.textContent = m.away_goals;
+            generalResult.appendChild(p8);
 
             if(m.status === "inprogress") {
                 p7.classList.add("in-progress");
                 p8.classList.add("in-progress");
             }
 
-            if(m.home_goals > m.away_goals) {
+            if(m.penalties_home_goals != null) {
+                totalHomeGoals += m.penalties_home_goals;
+                totalAwayGoals += m.penalties_away_goals;
+
+                const penaltiesResult = document.createElement("div");
+                penaltiesResult.classList.add("penalties-result");
+
+                result.appendChild(penaltiesResult);
+
+                const p9 = document.createElement('p');
+                p9.textContent = `(${m.penalties_home_goals})`;
+                penaltiesResult.appendChild(p9);
+
+                const p10 = document.createElement('p');
+                p10.textContent = `(${m.penalties_away_goals})`;
+                penaltiesResult.appendChild(p10);
+
+                if(totalHomeGoals > totalAwayGoals)
+                    p9.classList.add("winner");
+                else if(totalHomeGoals < totalAwayGoals)
+                    p10.classList.add("winner");
+            }
+
+            if(totalHomeGoals > totalAwayGoals) {
                 p5.classList.add("winner");
                 p7.classList.add("winner");
-            } else if(m.home_goals < m.away_goals) {
+            } else if(totalHomeGoals < totalAwayGoals) {
                 p6.classList.add("winner");
                 p8.classList.add("winner");
             }
@@ -720,7 +755,6 @@ function paintCalendar(matchesByDay) {
                 const month = matchCalendarDate.getMonth() + 1;
                 const year = matchCalendarDate.getFullYear();
 
-                console.log("matches:", matches);
                 openDayPopover(e.currentTarget, matches);
             });
             
@@ -735,8 +769,6 @@ function openDayPopover(triggerEl, matches) {
     const arrow = popover.querySelector(".popover-arrow");
 
     container.innerHTML = "";
-
-    console.log(matches);
 
     matches.forEach(m => {
         const div = document.createElement("div");
@@ -785,6 +817,7 @@ document.querySelector(".popover-close")
 
 document.getElementById("prevReminderMonth").addEventListener("click", () => {
     matchCalendarDate.setMonth(matchCalendarDate.getMonth() - 1);
+    reminderCalendarDate.setMonth(reminderCalendarDate.getMonth() - 1);
     const title = document.getElementById("calendarReminderTitle");
     title.textContent = matchCalendarDate.toLocaleDateString("es-AR", {
         month: "long",
@@ -797,6 +830,7 @@ document.getElementById("prevReminderMonth").addEventListener("click", () => {
 
 document.getElementById("nextReminderMonth").addEventListener("click", () => {
     matchCalendarDate.setMonth(matchCalendarDate.getMonth() + 1);
+    reminderCalendarDate.setMonth(reminderCalendarDate.getMonth() + 1);
     const title = document.getElementById("calendarReminderTitle");
     title.textContent = matchCalendarDate.toLocaleDateString("es-AR", {
         month: "long",

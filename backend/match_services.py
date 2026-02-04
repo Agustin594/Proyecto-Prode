@@ -24,7 +24,11 @@ def get_all_matches(date):
             "competition_name": r[8],
             "home_team_image": r[9],
             "away_team_image": r[10],
-            "competition_image_name": r[11]
+            "competition_image_name": r[11],
+            "overtime_home_goals": r[12],
+            "overtime_away_goals": r[13],
+            "penalties_home_goals": r[14],
+            "penalties_away_goals": r[15]
         })
 
     return matches
@@ -46,7 +50,11 @@ def get_personal_matches(date, user_id):
             "competition_name": r[8],
             "home_team_image": r[9],
             "away_team_image": r[10],
-            "competition_image_name": r[11]
+            "competition_image_name": r[11],
+            "overtime_home_goals": r[12],
+            "overtime_away_goals": r[13],
+            "penalties_home_goals": r[14],
+            "penalties_away_goals": r[15]
         })
 
     return matches
@@ -68,7 +76,11 @@ def get_important_matches():
             "competition_name": r[8],
             "home_team_image": r[9],
             "away_team_image": r[10],
-            "competition_image_name": r[11]
+            "competition_image_name": r[11],
+            "overtime_home_goals": r[12],
+            "overtime_away_goals": r[13],
+            "penalties_home_goals": r[14],
+            "penalties_away_goals": r[15]
         })
 
         match["points"] = calculate_match_points(match)

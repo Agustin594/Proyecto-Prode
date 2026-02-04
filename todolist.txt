@@ -1,8 +1,7 @@
 8- Nombre corto para los equipos
-12- Bloquear página sin login
+12- Problema de fetchear sin Token (robo de datos)
 13- Arreglar lo de importar funciones (Ver si sirve importar la creacion de la pag de una)
 
-- Arreglar matches duplicados
 - Logo
 - Datos del usuario
 - Redirigir desde matches

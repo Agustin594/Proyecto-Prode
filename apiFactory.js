@@ -27,6 +27,13 @@ export function createAPI(moduleName, config = {})
 
         if (!res.ok) {
             const data = await res.json();
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "login.html";
+                return;
+            }
+
             throw {
                 status: res.status,
                 message: data.detail || "Error"
@@ -44,6 +51,13 @@ export function createAPI(moduleName, config = {})
             });
             if (!res.ok) {
                 const data = await res.json();
+
+                if (res.status === 401) {
+                    localStorage.removeItem("token");
+                    window.location.href = "login.html";
+                    return;
+                }
+
                 throw {
                     status: res.status,
                     message: data.detail || "Error"
@@ -58,6 +72,13 @@ export function createAPI(moduleName, config = {})
             });
             if (!res.ok) {
                 const data = await res.json();
+
+                if (res.status === 401) {
+                    localStorage.removeItem("token");
+                    window.location.href = "login.html";
+                    return;
+                }
+            
                 throw {
                     status: res.status,
                     message: data.detail || "Error"
@@ -72,6 +93,13 @@ export function createAPI(moduleName, config = {})
             });
             if (!res.ok) {
                 const data = await res.json();
+
+                if (res.status === 401) {
+                    localStorage.removeItem("token");
+                    window.location.href = "login.html";
+                    return;
+                }
+
                 throw {
                     status: res.status,
                     message: data.detail || "Error"
@@ -86,6 +114,13 @@ export function createAPI(moduleName, config = {})
             });
             if (!res.ok) {
                 const data = await res.json();
+
+                if (res.status === 401) {
+                    localStorage.removeItem("token");
+                    window.location.href = "login.html";
+                    return;
+                }
+
                 throw {
                     status: res.status,
                     message: data.detail || "Error"
@@ -114,6 +149,13 @@ export function createAPI(moduleName, config = {})
 
             if (!res.ok) {
                 const data = await res.json();
+
+                if (res.status === 401) {
+                    localStorage.removeItem("token");
+                    window.location.href = "login.html";
+                    return;
+                }
+
                 throw {
                     status: res.status,
                     message: data.detail || "Error"

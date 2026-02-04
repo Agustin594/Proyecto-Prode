@@ -144,8 +144,12 @@ body {
 
 .result {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     padding-right: 5px;
+}
+
+.result > div {
+    margin-right: 3px;
 }
 
 .result p {
@@ -153,7 +157,24 @@ body {
     font-size: 14px;
 }
 
-.result > div {
+.general-result {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.general-result > p {
+    height: 50%;
+    align-content: center;
+}
+
+.penalties-result {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.penalties-result > p {
     height: 50%;
     align-content: center;
 }
