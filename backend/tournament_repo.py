@@ -330,3 +330,12 @@ def get_champion_id_prediction(tournament_id, user_id):
     """
 
     return db.fetch_one(query,(tournament_id,user_id))
+
+def fetch_user_data(user_id):
+    db = Database()
+
+    query = """
+        SELECT name, coins FROM user_ WHERE id = %s
+    """
+
+    return db.fetch_all(query, (user_id,))

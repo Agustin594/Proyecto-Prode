@@ -43,11 +43,11 @@ function setupRegistrationFormHandler()
             form.reset();
             
             // Guardar token
-            localStorage.setItem("token", result.access_token)
-            localStorage.setItem("token_type", result.token_type)
+            localStorage.setItem("token", result.access_token);
+            localStorage.setItem("token_type", result.token_type);
 
             // Redireccionar
-            window.location.href = "tournament.html"
+            window.location.href = `tournament.html?view=general`;
         }
         catch (err)
         {

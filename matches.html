@@ -5,22 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/76efffbb11.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="matchesStyles.css">
-    <title>ProdeBET</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon-16x16.png">
+    <link rel="manifest" href="image/site.webmanifest">
+    <title>PickMaster</title>
 </head>
 <body>
     <header class="header">
         <div class="header-top">
-            <div class="container-img">
-                <img src="" alt="Logo ProdeBET">
+            <div class="container-logo">
+                <img src="image/Logo 1 PickMaster.png" alt="Logo PickMaster">
+                <p>PickMaster</p>
             </div>
-            <div class="main-options"></div>
+            <div class="main-options" id="mainOptions">
+                <div class="menu-opener" id="menuOpener"><i class="fa-solid fa-bars"></i></div>
+            </div>
         </div>
-        <nav class="nav">
+        <nav class="nav" id="navBar">
             <ul>
                 <li id="matchLink" class="nav-selected">Matches</li>
-                <li id="tournamentLink">Tournaments</li>
-                <li id="myTournamentLink">My Tournaments</li>
-                <li id="createTournamentLink">Create Tournament</li>
+                <li id="tournamentLink" onclick="goToTournament('general')">Tournaments</li>
+                <li id="myTournamentLink" onclick="goToTournament('personal')">My Tournaments</li>
+                <li id="createTournamentLink" onclick="goToTournament('create-tournament')">Create Tournament</li>
                 <li id="shopLink">Shop</li>
             </ul>
         </nav>
@@ -123,6 +133,11 @@
         </div>
     </div>
 
+    <script>
+        function goToTournament(type) {
+            window.location.href = `tournament.html?view=${type}`;
+        }
+    </script>
     <script type="module" src="matchController.js"></script>
 </body>
 </html>

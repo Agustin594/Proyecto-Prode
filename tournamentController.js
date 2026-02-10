@@ -40,14 +40,34 @@ document.addEventListener('DOMContentLoaded', () =>
     }
 
     const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+
+    if (view === 'general') {
+        document.getElementById('tournamentListContainer').hidden = false;
+        document.getElementById('tournamentLink').classList.add("nav-selected");
+    }
+
+    if (view === 'personal') {
+        document.getElementById('myTournamentListContainer').hidden = false;
+        document.getElementById('myTournamentLink').classList.add("nav-selected");
+    }
+
+    if (view === 'create-tournament') {
+        document.getElementById('createTournamentListContainer').hidden = false;
+        document.getElementById('createTournamentLink').classList.add("nav-selected");
+    }
+
     const tournamentId = params.get("id");
 
     if (tournamentId) {
+        hideHeader();
         showTournamentDetail();
         loadTournamentData(tournamentId);
         loadTournamentUserTable(tournamentId);
         initTournament(tournamentId);
     } else {
+        loadUserData();
+        setupNavBar();
         setupNavButtons();
         initSelect();
         setupPasswordButton();
@@ -221,7 +241,6 @@ async function loadTournaments()
     catch (err) 
     {
         console.error('Tournament charge error:', err.message);
-        errormessage();
     }
 }
 
@@ -236,7 +255,6 @@ async function loadOwnTournaments()
     catch (err) 
     {
         console.error('Tournament charge error:', err.message);
-        errormessage();
     }
 }
 
@@ -359,23 +377,6 @@ function deleteButton(container, tournament_id) {
     container.appendChild(btn);
 }
 
-function errormessage(){
-    const list = document.getElementById('tournamentList');
-    list.replaceChildren();
-
-    const div = document.createElement('div');
-
-    div.appendChild(createErrorCell());
-
-    list.appendChild(div);
-}
-
-function createErrorCell(){
-    const p = document.createElement('p');
-    p.textContent = "Data charge error.";
-    return p;
-}
-
 function setupTournamentData(){
     document.addEventListener("click", (e) => {
         const card = e.target.closest(".tournament-card");
@@ -441,7 +442,6 @@ async function loadTournamentData(tournamentId)
     catch (err) 
     {
         console.error('Error cargando inscripciones:', err.message);
-        errormessage();
     }
 }
 
@@ -456,7 +456,6 @@ async function loadTournamentUserTable(tournamentId)
     catch (err) 
     {
         console.error('Error cargando posiciones:', err.message);
-        errormessage();
     }
 }
 
@@ -579,7 +578,6 @@ async function loadTournamentMatchTable(tournamentId) {
     catch (err) 
     {
         console.error('Error cargando partidos:', err.message);
-        errormessage();
     }
 }
 
@@ -1108,7 +1106,6 @@ async function loadTournamentGoalscorerTable(tournamentId) {
     catch (err) 
     {
         console.error('Error cargando goleadores:', err.message);
-        errormessage();
     }
 }
 
@@ -1218,11 +1215,12 @@ function setupSpecialPredictionForm(tournamentId) {
         { 
             await tournamentAPI.updateWithPath(`${tournamentId}/prediction`, prediction);
             initTeamSelect(tournamentId);
+            showToast("Champion prediction successfully created.", "success");
         }
         catch (err)
         {
             console.log("ERROR: ", err);
-            alert("It couldn't create the tournament.");
+            showToast("Champion prediction couldn't be created.", "error");
         }
   });
 }
@@ -1329,4 +1327,75 @@ function setupNavButtons() {
     matchLink.addEventListener("click", () => {
         window.location.href = "matches.html";
     })
+}
+
+async function loadUserData() {
+    try 
+    {
+        const userData = await tournamentAPI.fetchByPath(`userdata`);
+        renderUserData(userData[0]);
+    } 
+    catch (err) 
+    {
+        console.error('Error cargando datos del usuario:', err.message);
+    }
+}
+
+function renderUserData(user) {
+    const mainOptions = document.getElementById("mainOptions");
+    
+    const coinsContainer = document.createElement("div");
+    const coins = document.createElement('p');
+    coins.textContent = user.coins;
+    coinsContainer.appendChild(coins);
+    mainOptions.prepend(coinsContainer);
+
+    const nameContainer = document.createElement("div");
+    const name = document.createElement('p');
+    name.textContent = user.name;
+    nameContainer.appendChild(name);
+    mainOptions.prepend(nameContainer);
+}
+
+function hideHeader() {
+    document.querySelector("header").hidden = true;
+}
+
+function setupNavBar() {
+    const menuBtn = document.getElementById('menuOpener');
+    const nav = document.getElementById('navBar');
+
+    menuBtn.addEventListener('click', () => {
+        nav.classList.toggle('active');
+    });
+}
+
+function showToast(message, type = "info", duration = 3000) {
+  const container = document.getElementById("toastContainer");
+
+  const toast = document.createElement("div");
+  toast.className = `toast`;
+
+  const p = document.createElement('p');
+  p.textContent = message;
+
+  const i = document.createElement('i');
+  i.classList.add("fa-regular");
+
+  if(type === "info") {
+    i.classList.add("fa-circle-question");
+  } else if(type === "error") {
+    i.classList.add("fa-circle-xmark");
+  } else if(type === "success") {
+    i.classList.add("fa-circle-check");
+  }
+
+  toast.appendChild(i);
+  toast.appendChild(p);
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, duration);
 }

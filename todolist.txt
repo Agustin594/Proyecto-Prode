@@ -3,8 +3,6 @@
 13- Arreglar lo de importar funciones (Ver si sirve importar la creacion de la pag de una)
 
 - Logo
-- Datos del usuario
-- Redirigir desde matches
 - Mensajes para los usuarios
 - Register/login
 - Filtrado de torneos

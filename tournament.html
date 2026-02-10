@@ -6,20 +6,30 @@
     <link rel="stylesheet" href="tournamentStyles.css">
     <script src="https://kit.fontawesome.com/76efffbb11.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet"/>
-    <title>ProdeBET</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="image/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon-16x16.png">
+    <link rel="manifest" href="image/site.webmanifest">
+    <title>PickMaster</title>
 </head>
 <body>
     <header class="header">
         <div class="header-top">
-            <div class="container-img">
-                <img src="" alt="Logo ProdeBET">
+            <div class="container-logo">
+                <img src="image/Logo 1 PickMaster.png" alt="Logo PickMaster">
+                <p>PickMaster</p>
             </div>
-            <div class="main-options"></div>
+            <div class="main-options" id="mainOptions">
+                <div class="menu-opener" id="menuOpener"><i class="fa-solid fa-bars"></i></div>
+            </div>
         </div>
-        <nav class="nav">
+        <nav class="nav" id="navBar">
             <ul>
                 <li id="matchLink">Matches</li>
-                <li id="tournamentLink" class="nav-selected">Tournaments</li>
+                <li id="tournamentLink">Tournaments</li>
                 <li id="myTournamentLink">My Tournaments</li>
                 <li id="createTournamentLink">Create Tournament</li>
                 <li id="shopLink">Shop</li>
@@ -28,7 +38,7 @@
     </header>
 
     <!-- Tournament List -->
-    <section id="tournament-list">
+    <section id="tournament-list" class="tournament-list-section">
         <div class="tournament-create-form" id="createTournamentListContainer" hidden>
             <h3>Create Tournament</h3>
 
@@ -76,7 +86,7 @@
             </form>
         </div>
 
-        <div class="container-tournaments" id="tournamentListContainer">
+        <div class="container-tournaments" id="tournamentListContainer" hidden>
             <div id="tournamentList" class="list"></div>
         </div>
 
@@ -89,7 +99,7 @@
     <section id="tournamentDetail" class="tournament-detail" hidden>
         <div class="tournament-header">
             <div class="driver-buttons">
-                <a href="tournament.html"><i class="fa-solid fa-arrow-left-long"></i></a>
+                <a href="tournament.html?view=general"><i class="fa-solid fa-arrow-left-long"></i></a>
             </div>
 
             <div id="tournamentData" class="tournament-data"></div>
@@ -137,6 +147,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Toast -->
+    <div id="toastContainer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script type="module" src="tournamentController.js"></script>

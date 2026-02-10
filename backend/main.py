@@ -39,6 +39,10 @@ def get_tournaments(user_id:int = Depends(get_current_user_id)):
 def get_tournaments_by_user_id(user_id:int = Depends(get_current_user_id)):
     return ts.get_tournaments_by_user_id(user_id)
 
+@app.get("/tournament/userdata")
+def get_user_data(user_id:int = Depends(get_current_user_id)):
+    return ts.get_user_data(user_id)
+
 @app.get("/tournament/competitions")
 def get_competitions():
     return ts.get_competitions()
@@ -104,3 +108,7 @@ def get_important_matches():
 @app.get("/matches/calendar")
 def get_calendar_matches(month: int, year: int, user_id:int = Depends(get_current_user_id)):
     return ms.get_calendar_matches(month, year, user_id)
+
+@app.get("/matches/userdata")
+def get_user_data_match(user_id:int = Depends(get_current_user_id)):
+    return ts.get_user_data(user_id)

@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () =>
     const params = new URLSearchParams(window.location.search);
 
     loadUserData();
-    setupNavBar();
     updateDate();
     loadAllMatchList(formatISO(currentDate));
     setupButtons();
@@ -869,13 +868,4 @@ function renderUserData(user) {
     name.textContent = user.name;
     nameContainer.appendChild(name);
     mainOptions.appendChild(nameContainer);
-}
-
-function setupNavBar() {
-    const menuBtn = document.getElementById('menuOpener');
-    const nav = document.getElementById('navBar');
-
-    menuBtn.addEventListener('click', () => {
-        nav.classList.toggle('active');
-    });
 }

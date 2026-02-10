@@ -302,3 +302,15 @@ def isRegistered(user_id, tournament_id):
     result = db.fetch_one("""SELECT 1 FROM registration WHERE user_id = %s AND tournament_id = %s""",(user_id, tournament_id))
 
     return result != None
+
+def get_user_data(user_id):
+    rows = tr.fetch_user_data(user_id)
+
+    user = []
+    for r in rows:
+        user.append({
+            "name": r[0],
+            "coins": r[1]
+        })
+
+    return user
