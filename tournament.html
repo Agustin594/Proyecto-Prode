@@ -99,7 +99,7 @@
     <section id="tournamentDetail" class="tournament-detail" hidden>
         <div class="tournament-header">
             <div class="driver-buttons">
-                <a href="tournament.html?view=general"><i class="fa-solid fa-arrow-left-long"></i></a>
+                <i class="fa-solid fa-arrow-left-long" id="goBack"></i>
             </div>
 
             <div id="tournamentData" class="tournament-data"></div>
@@ -150,6 +150,19 @@
 
     <!-- Toast -->
     <div id="toastContainer"></div>
+
+    <!-- Confirmation -->
+    <div id="confirmModal" class="confirm-modal hidden">
+        <div class="modal-box">
+            <i class="fa-regular fa-circle-question"></i>   
+            <p id="confirmText"></p>
+
+            <div class="modal-actions">
+                <button id="confirmCancel">Cancel</button>
+                <button id="confirmOk">Confirm</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script type="module" src="tournamentController.js"></script>

@@ -57,10 +57,20 @@ document.addEventListener('DOMContentLoaded', () =>
         document.getElementById('createTournamentLink').classList.add("nav-selected");
     }
 
+    const message = sessionStorage.getItem("flashMessage");
+    const type = sessionStorage.getItem("flashType");
+
+    if (message) {
+        showToast(message, type);
+        sessionStorage.removeItem("flashMessage");
+        sessionStorage.removeItem("flashType");
+    }
+
     const tournamentId = params.get("id");
 
     if (tournamentId) {
         hideHeader();
+        setupGoBackButton();
         showTournamentDetail();
         loadTournamentData(tournamentId);
         loadTournamentUserTable(tournamentId);
@@ -166,24 +176,25 @@ function setupTournamentFormHandler()
             return;
         }
 
-        if(tournament.entry_price < 0) {
+        /*if(tournament.entry_price < 0) {
             createErrorMessage("container-entry-price", "The price cannot be negative.");
             return;
-        }
+        }*/
 
         try 
         { 
-            console.log(tournament);
-            const result = await tournamentAPI.create(tournament);
-            console.log(result);
+            await tournamentAPI.create(tournament);
             form.reset();
             loadTournaments();
             loadOwnTournaments();
+
+            showToast("The tournament was successfully created.", "success");
         }
         catch (err)
         {
             console.log("ERROR: ", err);
-            alert("It couldn't create the tournament.");
+
+            showToast("The tournament cannot be created.", "error");
         }
   });
 }
@@ -1344,17 +1355,17 @@ async function loadUserData() {
 function renderUserData(user) {
     const mainOptions = document.getElementById("mainOptions");
     
-    const coinsContainer = document.createElement("div");
-    const coins = document.createElement('p');
-    coins.textContent = user.coins;
-    coinsContainer.appendChild(coins);
-    mainOptions.prepend(coinsContainer);
-
     const nameContainer = document.createElement("div");
     const name = document.createElement('p');
     name.textContent = user.name;
     nameContainer.appendChild(name);
     mainOptions.prepend(nameContainer);
+
+    /*const coinsContainer = document.createElement("div");
+    const coins = document.createElement('p');
+    coins.textContent = user.coins;
+    coinsContainer.appendChild(coins);
+    mainOptions.prepend(coinsContainer);*/
 }
 
 function hideHeader() {
@@ -1398,4 +1409,35 @@ function showToast(message, type = "info", duration = 3000) {
   setTimeout(() => {
     toast.remove();
   }, duration);
+}
+
+function confirmAction(message, onConfirm) {
+  const modal = document.getElementById("confirmModal");
+  const text = document.getElementById("confirmText");
+  const ok = document.getElementById("confirmOk");
+  const cancel = document.getElementById("confirmCancel");
+
+  text.textContent = message;
+  modal.classList.remove("hidden");
+
+  ok.onclick = () => {
+    modal.classList.add("hidden");
+    onConfirm();
+  };
+
+  cancel.onclick = () => {
+    modal.classList.add("hidden");
+  };
+}
+
+function setupGoBackButton() {
+    const button = document.getElementById("goBack");
+
+    button.addEventListener("click", () => {
+        confirmAction("Are you sure you want to go back? Your unsaved predictions will be lost.",
+            () => {
+                window.location.href = "tournament.html?view=general";
+            }
+        );
+    })
 }
